@@ -33,3 +33,5 @@ WALL_IMG = "tile_96.png"
 # Mob settings
 
 MOB_IMG = "zoimbie1_hold.png"
+MOB_SPEED = 150
+MOB_HIT_RECT = pg.Rect(0, 0, 30, 30)
