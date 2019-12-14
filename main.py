@@ -1,10 +1,10 @@
 import sys
 import pygame as pg
-from settings import WIDTH, HEIGHT, TITLE, TILESIZE, LIGHTGREY, FPS, BGCOLOR, PLAYER_IMG
+from settings import WIDTH, HEIGHT, TITLE, TILESIZE, LIGHTGREY, FPS, BGCOLOR, PLAYER_IMG, WALL_IMG, MOB_IMG
 from os import path
 from tilemap import Map, Camera
 
-from sprites import Player, Wall
+from sprites import Player, Wall, Mob
 
 class Game:
 
@@ -27,15 +27,23 @@ class Game:
         game_folder = path.dirname(__file__)
         img_folder = path.join(game_folder, "assets", "PNG", "Man Blue")
 
+        wall_img_path = path.join(game_folder, "assets", "PNG", "Tiles", WALL_IMG)
+        zombie_img_path = path.join(game_folder, "assets", "PNG", "Zombie 1", MOB_IMG)
+
         self.map = Map(path.join(game_folder, "map2.txt"))
 
         self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha()
+        self.wall_img = pg.image.load(wall_img_path).convert_alpha()    # No ned to scale.
+        self.mob_img = pg.image.load(zombie_img_path).convert_alpha()    # No ned to scale.
+
+        # Resize if necessary.
 
     def new(self):
         # initialize all variables and do all the setup for a new game
 
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
+        self.mobs = pg.sprite.Group()
 
         for row, tiles in enumerate(self.map.data):
 
@@ -48,6 +56,10 @@ class Game:
                 if tile == "P":
 
                     self.player = Player(self, col, row)
+
+                if tile == "M":
+
+                    Mob(self, col, row)
 
         self.camera = Camera(self.map.width, self.map.height)
 
@@ -88,8 +100,10 @@ class Game:
 
     def draw(self):
 
+        pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
+
         self.screen.fill(BGCOLOR)
-        self.draw_grid()
+        # self.draw_grid()
 
         for sprite in self.all_sprites:
 
