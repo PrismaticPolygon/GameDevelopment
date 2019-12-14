@@ -1,6 +1,6 @@
 import sys
 import pygame as pg
-from settings import WIDTH, HEIGHT, TITLE, TILESIZE, LIGHTGREY, FPS, BGCOLOR
+from settings import WIDTH, HEIGHT, TITLE, TILESIZE, LIGHTGREY, FPS, BGCOLOR, PLAYER_IMG
 from os import path
 from tilemap import Map, Camera
 
@@ -25,8 +25,11 @@ class Game:
     def load_data(self):
 
         game_folder = path.dirname(__file__)
+        img_folder = path.join(game_folder, "assets", "PNG", "Man Blue")
 
         self.map = Map(path.join(game_folder, "map2.txt"))
+
+        self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha()
 
     def new(self):
         # initialize all variables and do all the setup for a new game

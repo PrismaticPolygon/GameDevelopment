@@ -4,7 +4,7 @@
 
 Player must seek 10 treasures in our university campus. Treasure hide-and-seek theme.
 
-
+Assets can be downloaded [here](https://kenney.nl/assets/topdown-shooter)
 
 #### Game design [10]
 

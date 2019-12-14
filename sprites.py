@@ -1,5 +1,7 @@
 import pygame as pg
-from settings import TILESIZE, YELLOW, GREEN, PLAYER_SPEED
+from settings import TILESIZE, GREEN, PLAYER_SPEED
+
+vec = pg.math.Vector2
 
 class Player(pg.sprite.Sprite):
 
@@ -10,41 +12,39 @@ class Player(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
 
         self.game = game
-        self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(YELLOW)
+        self.image = game.player_img
+
         self.rect = self.image.get_rect()
 
-        self.vx, self.vy = 0, 0
+        self.vel = vec(0, 0)
+        self.pos = vec(x, y) * TILESIZE
 
-        self.x = x * TILESIZE
-        self.y = y * TILESIZE
 
     def get_keys(self):
 
-        self.vx, self.vy = 0, 0
+        self.vel = vec(0, 0)
 
         keys = pg.key.get_pressed()
 
         if keys[pg.K_LEFT] or keys[pg.K_a]:
 
-            self.vx = -PLAYER_SPEED
+            self.vel.x = -PLAYER_SPEED
 
         if keys[pg.K_RIGHT] or keys[pg.K_d]:
 
-            self.vx = PLAYER_SPEED
+            self.vel.x = PLAYER_SPEED
 
         if keys[pg.K_UP] or keys[pg.K_w]:
 
-            self.vy = -PLAYER_SPEED
+            self.vel.y = -PLAYER_SPEED
 
         if keys[pg.K_DOWN] or keys[pg.K_s]:
 
-            self.vy = PLAYER_SPEED
+            self.vel.y = PLAYER_SPEED
 
-        if self.vx != 0 and self.vy != 0:
+        if self.vel.x != 0 and self.vel.y != 0:
 
-            self.vx *= 0.7071
-            self.vy *= 0.7071
+            self.vel *= 0.7071
 
     def collide_with_walls(self, dir):
 
@@ -54,16 +54,16 @@ class Player(pg.sprite.Sprite):
 
             if hits:
 
-                if self.vx > 0: # Sprite moving right
+                if self.vel.x > 0: # Sprite moving right
 
-                    self.x = hits[0].rect.left - self.rect.width
+                    self.pos.x = hits[0].rect.left - self.rect.width
 
                 else:
 
-                    self.x = hits[0].rect.right
+                    self.pos.x = hits[0].rect.right
 
-                self.vx = 0
-                self.rect.x = self.x
+                self.vel.x = 0
+                self.rect.x = self.pos.x
 
         if dir == 'y':
 
@@ -71,29 +71,27 @@ class Player(pg.sprite.Sprite):
 
             if hits:
 
-                if self.vy > 0:  # Sprite moving down
+                if self.vel.y > 0:  # Sprite moving down
 
-                    self.y = hits[0].rect.top - self.rect.height
+                    self.pos.y = hits[0].rect.top - self.rect.height
 
                 else:
 
-                    self.y = hits[0].rect.bottom
+                    self.pos.y = hits[0].rect.bottom
 
-                self.vy = 0
-                self.rect.y = self.y
+                self.vel.y = 0
+                self.rect.y = self.pos.y
 
     def update(self):
 
         self.get_keys()
+        self.pos += self.vel * self.game.dt
 
-        self.x += self.vx * self.game.dt
-        self.y += self.vy * self.game.dt
-
-        self.rect.x = self.x
+        self.rect.x = self.pos.x
 
         self.collide_with_walls('x')
 
-        self.rect.y = self.y
+        self.rect.y = self.pos.y
 
         self.collide_with_walls('y')
 
