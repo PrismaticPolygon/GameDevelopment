@@ -1,6 +1,7 @@
 import sys
 import pygame as pg
 from settings import WIDTH, HEIGHT, TITLE, TILESIZE, LIGHTGREY, FPS, BGCOLOR
+from os import path
 
 from sprites import Player, Wall
 
@@ -22,18 +23,33 @@ class Game:
 
     def load_data(self):
 
-        pass
+        game_folder = path.dirname(__file__)
+        self.map_data = list()
+
+        with open(path.join(game_folder, "map.txt")) as f:
+
+            for line in f:
+
+                self.map_data.append(line)
+
 
     def new(self):
         # initialize all variables and do all the setup for a new game
 
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
-        self.player = Player(self, 10, 10)
 
-        for x in range(10, 20):
+        for row, tiles in enumerate(self.map_data):
 
-            Wall(self, x, 5)
+            for col, tile in enumerate(tiles):
+
+                if tile == "1":
+
+                    Wall(self, col, row)
+
+                if tile == "P":
+
+                    self.player = Player(self, col, row)
 
     def run(self):
 
