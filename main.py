@@ -1,6 +1,6 @@
 import sys
 import pygame as pg
-from settings import WIDTH, HEIGHT, TITLE, TILESIZE, LIGHTGREY, FPS, BGCOLOR, PLAYER_IMG, WALL_IMG, MOB_IMG
+from settings import *
 from os import path
 from tilemap import Map, Camera
 
@@ -29,12 +29,14 @@ class Game:
 
         wall_img_path = path.join(game_folder, "assets", "PNG", "Tiles", WALL_IMG)
         zombie_img_path = path.join(game_folder, "assets", "PNG", "Zombie 1", MOB_IMG)
+        bullet_img_path = path.join(game_folder, BULLET_IMG)
 
         self.map = Map(path.join(game_folder, "map2.txt"))
 
         self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha()
         self.wall_img = pg.image.load(wall_img_path).convert_alpha()    # No ned to scale.
         self.mob_img = pg.image.load(zombie_img_path).convert_alpha()    # No ned to scale.
+        self.bullet_img = pg.image.load(bullet_img_path)
 
         # Resize if necessary.
 
@@ -44,6 +46,7 @@ class Game:
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
         self.mobs = pg.sprite.Group()
+        self.bullets = pg.sprite.Group()
 
         for row, tiles in enumerate(self.map.data):
 
@@ -87,6 +90,14 @@ class Game:
         self.all_sprites.update()
 
         self.camera.update(self.player)
+
+        hits = pg.sprite.groupcollide(self.mobs, self.bullets, False, True)
+
+        for hit in hits:
+
+            hit.kill()
+
+        # Bullets disappear when they hit the zombie, but the zombies don't.
 
     def draw_grid(self):
 

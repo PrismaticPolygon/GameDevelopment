@@ -1,4 +1,5 @@
 import pygame as pg
+vec = pg.math.Vector2
 
 # define some colors (R, G, B)
 WHITE = (255, 255, 255)
@@ -27,8 +28,19 @@ PLAYER_SPEED = 300
 PLAYER_IMG = "manBlue_gun.png"
 PLAYER_ROT_SPEED = 250
 PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
+BARREL_OFFSET = vec(30, 10)
 
 WALL_IMG = "tile_96.png"
+
+# Gun settings
+
+BULLET_IMG = "assets/PNG/weapon_gun.png"
+BULLET_SPEED = 500
+BULLET_LIFETIME = 100000
+BULLET_RATE = 150
+GUN_SPREAD = 5
+KICKBACK = 200
+
 
 # Mob settings
 
