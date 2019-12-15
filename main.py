@@ -2,7 +2,7 @@ import sys
 import pygame as pg
 from settings import *
 from os import path
-from tilemap import Map, Camera, TiledMap
+from tilemap import Camera, TiledMap
 
 from sprites import Player, Wall, Mob, collide_hit_rect, Obstacle
 

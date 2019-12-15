@@ -1,5 +1,5 @@
 import pygame as pg
-from random import uniform
+from random import uniform, choice
 from settings import *
 from tilemap import collide_hit_rect
 from pygame.math import Vector2 as vec
@@ -159,6 +159,8 @@ class Mob(pg.sprite.Sprite):
 
         self.rot = 0
 
+        self.speed = choice(MOB_SPEEDS)
+
     def draw_health(self):
 
         if self.health > 66:
@@ -181,6 +183,22 @@ class Mob(pg.sprite.Sprite):
 
             pg.draw.rect(self.image, color, self.health_bar)
 
+    def avoid_mobs(self):
+
+        for mob in self.game.mobs:
+
+            if mob != self:
+
+                dist = self.pos - mob.pos   # Calculate distances between mobs
+
+                if 0 < dist.length() < AVOID_RADIUS:
+
+                    self.acc += dist.normalize()    # Make it a length of 1.
+
+
+
+
+
     def update(self):
 
         self.rot = (self.game.player.pos - self.pos).angle_to(vec(1, 0))
@@ -189,7 +207,13 @@ class Mob(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = self.pos
 
-        self.acc = vec(MOB_SPEED, 0).rotate(-self.rot)
+        self.acc = vec(1, 0).rotate(-self.rot)
+
+
+        self.avoid_mobs()
+
+        self.acc.scale_to_length(self.speed)
+
         self.acc += self.vel * -1
 
         self.vel += self.acc * self.game.dt
@@ -211,6 +235,7 @@ class Mob(pg.sprite.Sprite):
 
 
 class Bullet(pg.sprite.Sprite):
+
     def __init__(self, game, pos, dir):
         self.groups = game.all_sprites, game.bullets
         pg.sprite.Sprite.__init__(self, self.groups)
@@ -227,6 +252,7 @@ class Bullet(pg.sprite.Sprite):
         self.spawn_time = pg.time.get_ticks()
 
     def update(self):
+
         self.pos += self.vel * self.game.dt
         self.rect.center = self.pos
         if pg.sprite.spritecollideany(self, self.game.walls):

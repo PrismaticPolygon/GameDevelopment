@@ -1,7 +1,7 @@
 import pygame as pg
 from os import path
 import pytmx
-from settings import TILESIZE, WIDTH, HEIGHT
+from settings import *
 
 
 def collide_hit_rect(one, two):
@@ -44,24 +44,6 @@ class TiledMap:
         self.render(temp_surface)
 
         return temp_surface
-
-class Map:
-
-    def __init__(self, filename):
-
-        self.data = list()
-
-        with open(filename) as f:
-
-            for line in f:
-
-                self.data.append(line.strip())
-
-        self.tilewidth = len(self.data[0])
-        self.tileheight = len(self.data)
-
-        self.width =  self.tilewidth * TILESIZE
-        self.height = self.tileheight * TILESIZE
 
 class Camera:
 
