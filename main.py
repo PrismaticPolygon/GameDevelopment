@@ -70,14 +70,21 @@ class Game:
         self.mob_img = pg.image.load(zombie_img_path).convert_alpha()    # No ned to scale.
         self.bullet_img = pg.image.load(bullet_img_path)
 
+
+        self.gun_flashes = list()
+
+        for img in MUZZLE_FLASHES:
+
+            self.gun_flashes.append(pg.image.load(path.join(game_folder, img)).convert_alpha())
+
+
         # Resize if necessary.
 
     def new(self):
-
-        # Why do we have two players?
         # initialize all variables and do all the setup for a new game
 
-        self.all_sprites = pg.sprite.Group()
+        self.all_sprites = pg.sprite.LayeredUpdates()
+
         self.walls = pg.sprite.Group()
         self.mobs = pg.sprite.Group()
         self.bullets = pg.sprite.Group()

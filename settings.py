@@ -56,3 +56,18 @@ MOB_HEALTH = 100
 MOB_DAMAGE = 10
 MOB_KNOCKBACK = 20
 AVOID_RADIUS = 50
+
+MUZZLE_FLASHES = ["assets/PNG (Transparent)/muzzle_01.png", "assets/PNG (Transparent)/muzzle_02.png",
+                  "assets/PNG (Transparent)/muzzle_03.png", "assets/PNG (Transparent)/muzzle_04.png",
+                  "assets/PNG (Transparent)/muzzle_05.png"]
+
+
+FLASH_DURATION = 40
+
+# LAYERS
+
+WALL_LAYER = 1
+PLAYER_LAYER = 2
+BULLET_LAYER = 3
+MOB_LAYER = 2
+EFFECTS_LAYER = 4
