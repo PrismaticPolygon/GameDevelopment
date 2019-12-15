@@ -2,9 +2,9 @@ import sys
 import pygame as pg
 from settings import *
 from os import path
-from tilemap import Map, Camera
+from tilemap import Map, Camera, TiledMap
 
-from sprites import Player, Wall, Mob, collide_hit_rect
+from sprites import Player, Wall, Mob, collide_hit_rect, Obstacle
 
 def draw_player_health(surf, x, y, pct):
 
@@ -18,7 +18,7 @@ def draw_player_health(surf, x, y, pct):
     fill = pct * BAR_LENGTH
     outline_rect = pg.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
 
-    fill_rect = pg.Rect(x, y, fill, BAR_HEIGHT)
+    fill_rect = pg.Rect(x, y, int(fill), BAR_HEIGHT)
 
     if pct > 0.66:
 
@@ -54,13 +54,16 @@ class Game:
     def load_data(self):
 
         game_folder = path.dirname(__file__)
+
         img_folder = path.join(game_folder, "assets", "PNG", "Man Blue")
 
         wall_img_path = path.join(game_folder, "assets", "PNG", "Tiles", WALL_IMG)
         zombie_img_path = path.join(game_folder, "assets", "PNG", "Zombie 1", MOB_IMG)
         bullet_img_path = path.join(game_folder, BULLET_IMG)
 
-        self.map = Map(path.join(game_folder, "map2.txt"))
+        self.map = TiledMap("level1")
+        self.map_img = self.map.make_map()
+        self.map_rect = self.map_img.get_rect()
 
         self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha()
         self.wall_img = pg.image.load(wall_img_path).convert_alpha()    # No ned to scale.
@@ -70,6 +73,8 @@ class Game:
         # Resize if necessary.
 
     def new(self):
+
+        # Why do we have two players?
         # initialize all variables and do all the setup for a new game
 
         self.all_sprites = pg.sprite.Group()
@@ -77,23 +82,26 @@ class Game:
         self.mobs = pg.sprite.Group()
         self.bullets = pg.sprite.Group()
 
-        for row, tiles in enumerate(self.map.data):
+        for tile_object in self.map.tmxdata.objects:
 
-            for col, tile in enumerate(tiles):
+            row = tile_object.y
+            col = tile_object.x
 
-                if tile == "1":
+            if tile_object.name == "player":
 
-                    Wall(self, col, row)
+                self.player = Player(self, col, row)
 
-                if tile == "P":
+            if tile_object.name == "wall":
 
-                    self.player = Player(self, col, row)
+                Obstacle(self, col, row, tile_object.width, tile_object.height)
 
-                if tile == "M":
+            if tile_object.name == "zombie":
 
-                    Mob(self, col, row)
+                Mob(self, col, row)
+
 
         self.camera = Camera(self.map.width, self.map.height)
+        self.draw_debug = False
 
     def run(self):
 
@@ -159,8 +167,10 @@ class Game:
 
         pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
 
-        self.screen.fill(BGCOLOR)
+        # self.screen.fill(BGCOLOR)
         # self.draw_grid()
+
+        self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
 
         for sprite in self.all_sprites:
 
@@ -169,6 +179,16 @@ class Game:
                 sprite.draw_health()
 
             self.screen.blit(sprite.image, self.camera.apply(sprite))
+
+            if self.draw_debug:
+
+                pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(sprite.hit_rect), 1)
+
+        if self.draw_debug:
+
+            for wall in self.walls:
+
+                pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(wall.rect), 1)
 
 
         # HUD
@@ -193,6 +213,10 @@ class Game:
                 if event.key == pg.K_ESCAPE:
 
                     self.quit()
+
+                if event.key == pg.K_h:
+
+                    self.draw_debug = not self.draw_debug
 
     def show_start_screen(self):
 
