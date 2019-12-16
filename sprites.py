@@ -4,6 +4,7 @@ from settings import *
 from tilemap import collide_hit_rect
 from pygame.math import Vector2 as vec
 import pytweening as tween
+from x.weapons import Pistol
 
 # TODO: make generic "MOB" class
 # Rationalise asset loading to match sprite superclasses.
@@ -52,106 +53,6 @@ def collide_with_walls(sprite, group, dir):
             sprite.vel.y = 0
             sprite.hit_rect.centery = sprite.pos.y
 
-class Player(pg.sprite.Sprite):
-
-    def __init__(self, game, x, y):
-
-        self._layer = PLAYER_LAYER
-
-        self.groups = game.all_sprites
-
-        pg.sprite.Sprite.__init__(self, self.groups)
-
-        self.game = game
-        self.image = game.player_img
-
-        self.rect = self.image.get_rect()
-
-        self.rect.center = (x, y)
-
-        self.vel = vec(0, 0)
-        self.pos = vec(x, y)
-
-        self.hit_rect = PLAYER_HIT_RECT
-        self.hit_rect.center = self.rect.center
-
-        self.rot = 0
-
-        self.last_shot = 0
-
-        self.health = PLAYER_HEALTH
-
-    def get_keys(self):
-
-        self.vel = vec(0, 0)
-        self.rot_speed = 0
-
-        keys = pg.key.get_pressed()
-
-        if keys[pg.K_LEFT] or keys[pg.K_a]:
-
-            self.rot_speed = PLAYER_ROT_SPEED
-
-        if keys[pg.K_RIGHT] or keys[pg.K_d]:
-
-            self.rot_speed = -PLAYER_ROT_SPEED
-
-        if keys[pg.K_UP] or keys[pg.K_w]:
-
-            self.vel = vec(PLAYER_SPEED, 0).rotate(-self.rot)
-
-        if keys[pg.K_DOWN] or keys[pg.K_s]:
-
-            self.vel = vec(-PLAYER_SPEED / 2, 0).rotate(-self.rot)
-
-        if keys[pg.K_SPACE]:
-
-            now = pg.time.get_ticks()
-
-            if now - self.last_shot > BULLET_RATE:
-
-                self.last_shot = now
-                dir = vec(1, 0).rotate(-self.rot)
-                pos = self.pos + BARREL_OFFSET.rotate(-self.rot)
-                Bullet(self.game, pos, dir)
-                self.vel = vec(-KICKBACK, 0).rotate(-self.rot)
-
-                choice(self.game.weapon_sounds["gun"]).play()
-
-                MuzzleFlash(self.game, pos, self.rot)
-
-    def add_health(self, amount):
-
-        self.health += amount
-
-        if self.health > PLAYER_HEALTH:
-
-            self.health = PLAYER_HEALTH
-
-    def update(self):
-
-        self.get_keys()
-
-        self.rot = (self.rot + self.rot_speed * self.game.dt) % 360
-
-        self.image = pg.transform.rotate(self.game.player_img, self.rot)
-
-        self.rect = self.image.get_rect()
-        self.rect.center = self.pos
-
-        self.pos += self.vel * self.game.dt
-
-        self.hit_rect.centerx = self.pos.x
-
-        # self.rect.centerx = self.pos.x
-
-        collide_with_walls(self, self.game.walls, 'x')
-
-        self.hit_rect.centery = self.pos.y
-
-        collide_with_walls(self, self.game.walls, 'y')
-
-        self.rect.center = self.hit_rect.center
 
 class Mob(pg.sprite.Sprite):
 
@@ -221,7 +122,7 @@ class Mob(pg.sprite.Sprite):
 
     def update(self):
 
-        target_dist = self.target.pos - self.pos
+        target_dist = self.target.position - self.pos
 
         if target_dist.length_squared() < DETECT_RADIUS ** 2:
 
@@ -265,39 +166,6 @@ class Mob(pg.sprite.Sprite):
 
             self.kill()
 
-class Bullet(pg.sprite.Sprite):
-
-    def __init__(self, game, pos, dir):
-
-        self._layer = BULLET_LAYER
-
-        self.groups = game.all_sprites, game.bullets
-        pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
-        self.image = game.bullet_img
-        self.rect = self.image.get_rect()
-
-        self.hit_rect = self.rect
-
-        self.pos = vec(pos)
-        self.rect.center = pos
-        spread = uniform(-GUN_SPREAD, GUN_SPREAD)
-        self.vel = dir.rotate(spread) * BULLET_SPEED
-        self.spawn_time = pg.time.get_ticks()
-
-    def update(self):
-
-        self.pos += self.vel * self.game.dt
-        self.rect.center = self.pos
-
-        if pg.sprite.spritecollideany(self, self.game.walls):
-
-            self.kill()
-
-        if pg.time.get_ticks() - self.spawn_time > BULLET_LIFETIME:
-
-            self.kill()
-
 class Obstacle(pg.sprite.Sprite):
 
     def __init__(self, game, x, y, width, height):
@@ -318,55 +186,6 @@ class Obstacle(pg.sprite.Sprite):
 
         self.rect.x = x
         self.rect.y = y
-
-class Wall(pg.sprite.Sprite):
-
-    def __init__(self, game, x, y):
-
-        self.groups = game.all_sprites, game.walls
-
-        pg.sprite.Sprite.__init__(self, self.groups)
-
-        self.game = game
-
-        self.image = game.wall_img
-
-        self.rect = self.image.get_rect()
-        self.x = x
-        self.y = y
-        self.rect.x = x * TILESIZE
-        self.rect.y = y * TILESIZE
-
-class MuzzleFlash(pg.sprite.Sprite):
-
-    def __init__(self, game, pos, rot):
-
-        self._layer = EFFECTS_LAYER
-        self.groups = game.all_sprites
-
-        pg.sprite.Sprite.__init__(self, self.groups)
-
-        self.game = game
-
-        size = randint(20, 50)
-
-        self.image = pg.transform.scale(choice(game.gun_flashes), (size, size))
-
-        self.image = pg.transform.rotate(self.image, rot)
-
-        self.rect = self.image.get_rect()
-
-        self.pos = pos
-
-        self.rect.center = pos
-
-        self.spawn_time = pg.time.get_ticks()
-
-    def update(self):
-
-        if pg.time.get_ticks() - self.spawn_time > FLASH_DURATION:
-
-            self.kill()
 
 class Item(pg.sprite.Sprite):
 

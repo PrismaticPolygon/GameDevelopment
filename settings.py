@@ -26,7 +26,7 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 # Player settings
 
 PLAYER_SPEED = 280
-PLAYER_IMG = "manBlue_gun.png"
+PLAYER_IMG = "manBlue_hold.png"
 PLAYER_ROT_SPEED = 250
 PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
 BARREL_OFFSET = vec(30, 10)

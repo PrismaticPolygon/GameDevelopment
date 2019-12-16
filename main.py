@@ -3,8 +3,10 @@ import pygame as pg
 from settings import *
 from os import path
 from tilemap import Camera, TiledMap
+from random import choice, randint, random
 
-from sprites import *
+from sprites import Obstacle, Item, collide_hit_rect
+from x import *
 
 def draw_player_health(surf, x, y, pct):
 
@@ -145,6 +147,11 @@ class Game:
         self.bullets = pg.sprite.Group()
         self.items = pg.sprite.Group()
 
+        self.weapons = pg.sprite.Group()
+
+        # Aha. It tries to draw it! That's reassuring.
+        # The image will depend on whether we've got it equipped or not.
+
         for tile_object in self.map.tmxdata.objects:
 
             center = vec(tile_object.x + tile_object.width / 2, tile_object.y + tile_object.height / 2)
@@ -162,7 +169,7 @@ class Game:
 
             if tile_object.name == "zombie":
 
-                Mob(self,  center.x, center.y)
+                Zombie(self, center.x, center.y)
 
             if tile_object.name in ["health"]:
 
@@ -174,7 +181,7 @@ class Game:
         self.camera = Camera(self.map.width, self.map.height)
         self.draw_debug = False
 
-        self.effect_sounds["level_start"].play()
+        # self.effect_sounds["level_start"].play()
 
     def draw_text(self, text, font_name, size, color, x, y, align="nw"):
         font = pg.font.Font(font_name, size)
@@ -206,7 +213,7 @@ class Game:
 
         self.playing = True
 
-        pg.mixer.music.play(loops=-1)
+        # pg.mixer.music.play(loops=-1)
 
         while self.playing:
 
@@ -266,9 +273,7 @@ class Game:
 
         if hits:
 
-            self.player.pos += vec(MOB_KNOCKBACK, 0).rotate(-hits[0].rot)
-
-
+            self.player.position += vec(MOB_KNOCKBACK, 0).rotate(-hits[0].rotation)
 
         hits = pg.sprite.groupcollide(self.mobs, self.bullets, False, True)
 
@@ -300,7 +305,7 @@ class Game:
 
         for sprite in self.all_sprites:
 
-            if isinstance(sprite, Mob):
+            if isinstance(sprite, Zombie):
 
                 sprite.draw_health()
 
@@ -333,7 +338,7 @@ class Game:
     def events(self):
 
         # catch all events here
-        for event in pg.event.get():
+        for event in pg.event.get(False):
 
             if event.type == pg.QUIT:
 
