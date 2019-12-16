@@ -56,11 +56,15 @@ MOB_HEALTH = 100
 MOB_DAMAGE = 10
 MOB_KNOCKBACK = 20
 AVOID_RADIUS = 50
+DETECT_RADIUS = 400
 
-MUZZLE_FLASHES = ["assets/PNG (Transparent)/muzzle_01.png", "assets/PNG (Transparent)/muzzle_02.png",
-                  "assets/PNG (Transparent)/muzzle_03.png", "assets/PNG (Transparent)/muzzle_04.png",
-                  "assets/PNG (Transparent)/muzzle_05.png"]
-
+MUZZLE_FLASHES = [
+    "assets/PNG (Transparent)/muzzle_01.png",
+    "assets/PNG (Transparent)/muzzle_02.png",
+    "assets/PNG (Transparent)/muzzle_03.png",
+    "assets/PNG (Transparent)/muzzle_04.png",
+    "assets/PNG (Transparent)/muzzle_05.png"
+]
 
 FLASH_DURATION = 40
 
@@ -79,3 +83,39 @@ ITEM_IMAGES = {"health": "assets/healthpack.png"}
 HEALTH_PACK_AMOUNT = 20
 BOB_RANGE = 15
 BOB_SPEED = 0.3
+
+# SOUND
+
+BG_MUSIC = "assets/sounds/music/espionage.ogg"
+
+PLAYER_HIT_SOUNDS = [
+    "assets/sounds/snd/pain/8.wav",
+    "assets/sounds/snd/pain/9.wav",
+    "assets/sounds/snd/pain/10.wav",
+    "assets/sounds/snd/pain/11.wav",
+    "assets/sounds/snd/pain/12.wav",
+    "assets/sounds/snd/pain/13.wav",
+    "assets/sounds/snd/pain/14.wav"
+]
+
+ZOMBIE_MOAN_SOUNDS = [
+    "assets/sounds/snd/brains2.wav",
+    "assets/sounds/snd/brains3.wav",
+    "assets/sounds/snd/zombie-roar-1.wav",
+    "assets/sounds/snd/zombie-roar-2.wav",
+    "assets/sounds/snd/zombie-roar-3.wav",
+    "assets/sounds/snd/zombie-roar-4.wav",
+    "assets/sounds/snd/zombie-roar-5.wav",
+    "assets/sounds/snd/zombie-roar-6.wav",
+    "assets/sounds/snd/zombie-roar-7.wav",
+    "assets/sounds/snd/zombie-roar-8.wav"
+]
+
+ZOMBIE_HIT_SOUNDS = ["assets/sounds/snd/splat-15.wav"]
+
+WEAPON_SOUNDS_GUN = ["assets/sounds/snd/sfx_weapon_singleshot2.wav"]
+
+EFFECT_SOUNDS = {
+    "level_start": "assets/sounds/snd/level_start.wav",
+    "health_up": "assets/sounds/snd/health_pack.wav"
+}

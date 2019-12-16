@@ -1,5 +1,5 @@
 import pygame as pg
-from random import uniform, choice, randint
+from random import uniform, choice, randint, random
 from settings import *
 from tilemap import collide_hit_rect
 from pygame.math import Vector2 as vec
@@ -116,6 +116,8 @@ class Player(pg.sprite.Sprite):
                 Bullet(self.game, pos, dir)
                 self.vel = vec(-KICKBACK, 0).rotate(-self.rot)
 
+                choice(self.game.weapon_sounds["gun"]).play()
+
                 MuzzleFlash(self.game, pos, self.rot)
 
     def add_health(self, amount):
@@ -125,7 +127,6 @@ class Player(pg.sprite.Sprite):
         if self.health > PLAYER_HEALTH:
 
             self.health = PLAYER_HEALTH
-
 
     def update(self):
 
@@ -159,7 +160,7 @@ class Mob(pg.sprite.Sprite):
         self._layer = MOB_LAYER
 
         self.groups = game.all_sprites, game.mobs
-        self.image = game.mob_img
+        self.image = game.mob_img.copy()
 
         self.rect = self.image.get_rect()
         self.hit_rect = MOB_HIT_RECT.copy()
@@ -181,6 +182,8 @@ class Mob(pg.sprite.Sprite):
         self.rot = 0
 
         self.speed = choice(MOB_SPEEDS)
+
+        self.target = game.player
 
     def draw_health(self):
 
@@ -216,40 +219,47 @@ class Mob(pg.sprite.Sprite):
 
                     self.acc += dist.normalize()    # Make it a length of 1.
 
-
-
-
-
     def update(self):
 
-        self.rot = (self.game.player.pos - self.pos).angle_to(vec(1, 0))
-        self.image = pg.transform.rotate(self.game.mob_img, self.rot)
+        target_dist = self.target.pos - self.pos
 
-        self.rect = self.image.get_rect()
-        self.rect.center = self.pos
+        if target_dist.length_squared() < DETECT_RADIUS ** 2:
 
-        self.acc = vec(1, 0).rotate(-self.rot)
+            if random() < 0.002:
 
-        self.avoid_mobs()
+                choice(self.game.zombie_moan_sounds).play()
 
-        self.acc.scale_to_length(self.speed)
 
-        self.acc += self.vel * -1
+            self.rot = target_dist.angle_to(vec(1, 0))
+            self.image = pg.transform.rotate(self.game.mob_img, self.rot)
 
-        self.vel += self.acc * self.game.dt
-        self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt ** 2
+            self.rect = self.image.get_rect()
+            self.rect.center = self.pos
 
-        self.hit_rect.centerx = self.pos.x
+            self.acc = vec(1, 0).rotate(-self.rot)
 
-        collide_with_walls(self, self.game.walls, 'x')
+            self.avoid_mobs()
 
-        self.hit_rect.centery = self.pos.y
+            self.acc.scale_to_length(self.speed)
 
-        collide_with_walls(self, self.game.walls, 'y')
+            self.acc += self.vel * -1
 
-        self.rect.center = self.hit_rect.center
+            self.vel += self.acc * self.game.dt
+            self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt ** 2
+
+            self.hit_rect.centerx = self.pos.x
+
+            collide_with_walls(self, self.game.walls, 'x')
+
+            self.hit_rect.centery = self.pos.y
+
+            collide_with_walls(self, self.game.walls, 'y')
+
+            self.rect.center = self.hit_rect.center
 
         if self.health <= 0:
+
+            choice(self.game.zombie_hit_sounds).play()
 
             self.kill()
 

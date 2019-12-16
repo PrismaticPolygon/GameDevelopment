@@ -6,6 +6,10 @@ Player must seek 10 treasures in our university campus. Treasure hide-and-seek t
 Based on [this]() Youtube tutorial.
 Assets can be downloaded [here](https://kenney.nl/assets/topdown-shooter)
 
+Sounds [here](https://www.youtube.com/redirect?q=http%3A%2F%2Fkidscancode.org%2Fblog%2Fimg%2FSounds.zip&redir_token=NFmDLLMugNkdO4VeCBa6wR2PZB18MTU3NjU4MjQyOEAxNTc2NDk2MDI4&event=video_description&v=vzJ0WG2LSYw)
+
+
+
 #### Game design [10]
 
 * Game goals
