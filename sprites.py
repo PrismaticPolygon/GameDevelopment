@@ -261,6 +261,8 @@ class Mob(pg.sprite.Sprite):
 
             choice(self.game.zombie_hit_sounds).play()
 
+            self.game.map_img.blit(self.game.splat, self.pos - vec(32, 32))
+
             self.kill()
 
 class Bullet(pg.sprite.Sprite):

@@ -61,6 +61,11 @@ class Game:
         zombie_img_path = path.join(game_folder, "assets", "PNG", "Zombie 1", MOB_IMG)
         bullet_img_path = path.join(game_folder, BULLET_IMG)
 
+        self.title_font = path.join(game_folder, "assets", "ZOMBIE.TTF")
+
+        self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
+        self.dim_screen.fill((0, 0, 0, 180))
+
         self.map = TiledMap("level1")
         self.map_img = self.map.make_map()
         self.map_rect = self.map_img.get_rect()
@@ -69,6 +74,9 @@ class Game:
         self.wall_img = pg.image.load(wall_img_path).convert_alpha()    # No ned to scale.
         self.mob_img = pg.image.load(zombie_img_path).convert_alpha()    # No ned to scale.
         self.bullet_img = pg.image.load(bullet_img_path)
+
+        self.splat = pg.image.load("assets/splat green.png").convert_alpha()
+        self.splat = pg.transform.scale(self.splat, (64, 64))
 
         self.item_images = dict()
 
@@ -130,6 +138,8 @@ class Game:
 
         self.all_sprites = pg.sprite.LayeredUpdates()
 
+        self.paused = False
+
         self.walls = pg.sprite.Group()
         self.mobs = pg.sprite.Group()
         self.bullets = pg.sprite.Group()
@@ -166,6 +176,30 @@ class Game:
 
         self.effect_sounds["level_start"].play()
 
+    def draw_text(self, text, font_name, size, color, x, y, align="nw"):
+        font = pg.font.Font(font_name, size)
+        text_surface = font.render(text, True, color)
+        text_rect = text_surface.get_rect()
+        if align == "nw":
+            text_rect.topleft = (x, y)
+        if align == "ne":
+            text_rect.topright = (x, y)
+        if align == "sw":
+            text_rect.bottomleft = (x, y)
+        if align == "se":
+            text_rect.bottomright = (x, y)
+        if align == "n":
+            text_rect.midtop = (x, y)
+        if align == "s":
+            text_rect.midbottom = (x, y)
+        if align == "e":
+            text_rect.midright = (x, y)
+        if align == "w":
+            text_rect.midleft = (x, y)
+        if align == "center":
+            text_rect.center = (x, y)
+        self.screen.blit(text_surface, text_rect)
+
     def run(self):
 
         # game loop - set self.playing = False to end the game
@@ -179,7 +213,11 @@ class Game:
             self.dt = self.clock.tick(FPS) / 1000
 
             self.events()
-            self.update()
+
+            if not self.paused:
+
+                self.update()
+
             self.draw()
 
     def quit(self):
@@ -285,6 +323,11 @@ class Game:
 
         # self.all_sprites.draw(self.screen)
 
+        if self.paused:
+
+            self.screen.blit(self.dim_screen, (0, 0))
+            self.draw_text("Paused", self.title_font, 105, RED, WIDTH / 2, HEIGHT / 2, align="center")
+
         pg.display.flip()
 
     def events(self):
@@ -305,6 +348,10 @@ class Game:
                 if event.key == pg.K_h:
 
                     self.draw_debug = not self.draw_debug
+
+                if event.key == pg.K_p:
+
+                    self.paused = not self.paused
 
     def show_start_screen(self):
 
