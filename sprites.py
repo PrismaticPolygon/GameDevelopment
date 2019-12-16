@@ -115,6 +115,14 @@ class Player(pg.sprite.Sprite):
 
                 MuzzleFlash(self.game, pos, self.rot)
 
+    def add_health(self, amount):
+
+        self.health += amount
+
+        if self.health > PLAYER_HEALTH:
+
+            self.health = PLAYER_HEALTH
+
 
     def update(self):
 
@@ -345,3 +353,22 @@ class MuzzleFlash(pg.sprite.Sprite):
 
             self.kill()
 
+class Item(pg.sprite.Sprite):
+
+    def __init__(self, game, pos, type):
+
+        self.layer = ITEMS_LAYER
+
+        self.groups = game.all_sprites, game.items
+
+        pg.sprite.Sprite.__init__(self, self.groups)
+
+        self.game = game
+
+        self.image = game.item_images[type]
+
+        self.type = type
+
+        self.rect = self.image.get_rect()
+
+        self.rect.center = pos

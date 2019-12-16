@@ -4,7 +4,7 @@ from settings import *
 from os import path
 from tilemap import Camera, TiledMap
 
-from sprites import Player, Wall, Mob, collide_hit_rect, Obstacle
+from sprites import *
 
 def draw_player_health(surf, x, y, pct):
 
@@ -59,7 +59,8 @@ class Game:
 
         wall_img_path = path.join(game_folder, "assets", "PNG", "Tiles", WALL_IMG)
         zombie_img_path = path.join(game_folder, "assets", "PNG", "Zombie 1", MOB_IMG)
-        bullet_img_path = path.join(game_folder, BULLET_IMG)
+        bullet_img_path = path.join(game_folder, BULLET_IMG)#
+
 
         self.map = TiledMap("level1")
         self.map_img = self.map.make_map()
@@ -69,6 +70,15 @@ class Game:
         self.wall_img = pg.image.load(wall_img_path).convert_alpha()    # No ned to scale.
         self.mob_img = pg.image.load(zombie_img_path).convert_alpha()    # No ned to scale.
         self.bullet_img = pg.image.load(bullet_img_path)
+
+        self.item_images = dict()
+
+        for item in ITEM_IMAGES:
+
+            self.item_images[item] = pg.image.load(path.join(game_folder, ITEM_IMAGES[item])).convert_alpha()
+
+            self.item_images[item] = pg.transform.scale(self.item_images[item], (32, 32))
+
 
 
         self.gun_flashes = list()
@@ -88,15 +98,18 @@ class Game:
         self.walls = pg.sprite.Group()
         self.mobs = pg.sprite.Group()
         self.bullets = pg.sprite.Group()
+        self.items = pg.sprite.Group()
 
         for tile_object in self.map.tmxdata.objects:
+
+            center = vec(tile_object.x + tile_object.width / 2, tile_object.y + tile_object.height / 2)
 
             row = tile_object.y
             col = tile_object.x
 
             if tile_object.name == "player":
 
-                self.player = Player(self, col, row)
+                self.player = Player(self, center.x, center.y)
 
             if tile_object.name == "wall":
 
@@ -104,7 +117,13 @@ class Game:
 
             if tile_object.name == "zombie":
 
-                Mob(self, col, row)
+                Mob(self,  center.x, center.y)
+
+            if tile_object.name in ["health"]:
+
+                Item(self, center, tile_object.name)
+
+
 
 
         self.camera = Camera(self.map.width, self.map.height)
@@ -134,6 +153,19 @@ class Game:
         self.all_sprites.update()
 
         self.camera.update(self.player)
+
+        # Player hits items
+
+        hits = pg.sprite.spritecollide(self.player, self.items, False)
+
+        for hit in hits:
+
+            if hit.type == "health" and self.player.health < PLAYER_HEALTH:
+
+                self.player.add_health(HEALTH_PACK_AMOUNT)
+
+                hit.kill()
+
 
         hits = pg.sprite.spritecollide(self.player, self.mobs, False, collide_hit_rect)
 
