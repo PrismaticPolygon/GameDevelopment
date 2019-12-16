@@ -3,6 +3,7 @@ from random import uniform, choice, randint
 from settings import *
 from tilemap import collide_hit_rect
 from pygame.math import Vector2 as vec
+import pytweening as tween
 
 # TODO: make generic "MOB" class
 # Rationalise asset loading to match sprite superclasses.
@@ -12,6 +13,8 @@ from pygame.math import Vector2 as vec
 # We can have spread increase the faster that you're travelling.
 # Magazine capacity.
 # We'll also want a cone of vision.
+
+# Melee attack: https://www.youtube.com/watch?v=AaJopFFkmNo
 
 def collide_with_walls(sprite, group, dir):
 
@@ -367,8 +370,32 @@ class Item(pg.sprite.Sprite):
 
         self.image = game.item_images[type]
 
+        self.pos = pos
+
         self.type = type
 
         self.rect = self.image.get_rect()
 
         self.rect.center = pos
+
+        self.tween = tween.easeInOutSine
+
+        self.step = 0
+
+        self.dir = 1
+
+    def update(self):
+
+        # bobbing motion
+
+        offset = BOB_RANGE * (self.tween(self.step / BOB_RANGE) - 0.5)
+
+        self.rect.centery = self.pos.y + offset * self.dir
+
+        self.step += BOB_SPEED
+
+        if self.step > BOB_RANGE:
+
+            self.step = 0
+            self.dir *= -1
+
