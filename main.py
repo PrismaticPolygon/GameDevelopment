@@ -66,6 +66,7 @@ class Game:
         bullet_img_path = path.join(game_folder, BULLET_IMG)
 
         self.title_font = path.join(game_folder, "assets", "ZOMBIE.TTF")
+        self.hud_font = path.join(game_folder, "assets", "Impacted2.0.ttf")
 
         self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
         self.dim_screen.fill((0, 0, 0, 180))
@@ -150,6 +151,10 @@ class Game:
         self.items = pg.sprite.Group()
 
         self.weapons = pg.sprite.Group()
+
+        self.map = TiledMap("level1")
+        self.map_img = self.map.make_map()
+        self.map_rect = self.map_img.get_rect()
 
         # Aha. It tries to draw it! That's reassuring.
         # The image will depend on whether we've got it equipped or not.
@@ -240,6 +245,10 @@ class Game:
 
         self.camera.update(self.player)
 
+        if len(self.mobs) == 0:
+
+            self.playing = False
+
         # Player hits items
 
         hits = pg.sprite.spritecollide(self.player, self.items, False)
@@ -282,7 +291,7 @@ class Game:
 
             self.player.position += vec(MOB_KNOCKBACK, 0).rotate(-hits[0].rotation)
 
-            self.player.hit()
+            self.player.hit( )
 
         # Bullets hit mobs
 
@@ -324,6 +333,7 @@ class Game:
         # HUD
 
         draw_player_health(self.screen, 10, 10, self.player.health / PLAYER_HEALTH)
+        self.draw_text('Zombies: {}'.format(len(self.mobs)), self.hud_font, 30, WHITE, WIDTH - 10, 10, align="ne")
 
         if self.paused:
 
@@ -373,14 +383,40 @@ class Game:
 
     def show_go_screen(self):
 
-        pass
+        self.screen.fill(BLACK)
+        self.draw_text("GAME OVER", self.title_font, 100, RED, WIDTH / 2, HEIGHT / 2, align="center")
+        self.draw_text("Press a key to start", self.title_font, 75, WHITE, WIDTH / 2, HEIGHT * 3 / 4, align="center")
 
+        pg.display.flip()
+
+        self.wait_for_key()
+
+    def wait_for_key(self):
+
+        pg.event.wait()
+        waiting = True
+
+        while waiting:
+
+            self.clock.tick(FPS)
+
+            for event in pg.event.get():
+
+                if event.type == pg.QUIT:
+
+                    waiting = False
+                    self.quit()
+
+                if event.type == pg.KEYUP:
+
+                    waiting = False
 
 # create the game object
 g = Game()
 g.show_start_screen()
 
 while True:
+
     g.new()
     g.run()
     g.show_go_screen()
