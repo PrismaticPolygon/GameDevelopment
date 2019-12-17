@@ -4,6 +4,7 @@ import pygame as pg
 import threading
 from x.effects import MuzzleFlash
 from os import path
+from settings import BULLET_LAYER, WEAPON_LAYER
 
 vec = pg.math.Vector2
 
@@ -21,11 +22,11 @@ sound_path = "assets/sounds/snd/shotgun.wav"
 
 class Bullet(pg.sprite.Sprite):
 
-    def __init__(self, game, position, direction, velocity):
+    def __init__(self, game, position, velocity, damage):
 
         # Game variables
 
-        # self._layer = BULLET_LAYER
+        self._layer = BULLET_LAYER
 
         self.groups = game.all_sprites, game.bullets
         pg.sprite.Sprite.__init__(self, self.groups)
@@ -33,9 +34,9 @@ class Bullet(pg.sprite.Sprite):
 
         # Bullet variables
 
-        self.position = position
-        self.direction = direction
+        self.position = vec(position)
         self.velocity = velocity
+        self.damage = damage
 
         # Image variables
 
@@ -59,6 +60,7 @@ class Firearm(pg.sprite.Sprite):
 
         # Game variables
 
+        self._layer = WEAPON_LAYER
         self.groups = game.all_sprites, game.weapons
         self.game = game
 
@@ -164,7 +166,58 @@ class Pistol(Firearm):
             direction = vec(1, 0).rotate(-self.rotation)
             velocity = direction.rotate(spread) * self.SPEED
 
-            Bullet(self.game, self.position, direction, velocity)
+            Bullet(self.game, self.position, velocity, self.DAMAGE)
 
             MuzzleFlash(self.game, self.position, -self.rotation)
 
+class Shotgun(Firearm):
+
+    def __init__(self, game, x, y, rotation):
+
+        Firearm.__init__(self, game, x, y, rotation)
+
+        # Weapon-specific constants
+
+        self.CAPACITY = 5
+        self.MODE = WeaponMode.SEMI_AUTOMATIC
+        self.SPEED = 400
+        self.SPREAD = 20
+        self.KICKBACK = 400
+        self.DAMAGE = 5
+        self.RATE_OF_FIRE = 150
+        self.RELOAD_SPEED = 1000
+        self.BULLET_COUNT = 12
+
+        # Weapon-specific variables
+
+        self.image = pg.image.load(path.join("assets", "PNG", "weapon_silencer.png")).convert_alpha()
+
+        # Each weapon should have a projectile image as well.
+
+        self.rect = self.image.get_rect()
+        self.hit_rect = self.rect
+        self.rect.center = self.position
+
+    def fire(self):
+
+        if self.capacity > 0 and self.reload_timer is None:
+
+            now = pg.time.get_ticks()
+
+            self.sound.play()
+            self.last_fired_at = now
+            self.capacity -= 1
+
+            direction = vec(1, 0).rotate(-self.rotation)
+            position = self.position
+
+            for i in range(self.BULLET_COUNT):
+
+                spread = uniform(-self.SPREAD, self.SPREAD)
+                velocity = direction.rotate(spread) * self.SPEED
+
+                print(velocity)
+
+                Bullet(self.game, position, velocity, self.DAMAGE)
+
+            MuzzleFlash(self.game, self.position, -self.rotation)

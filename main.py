@@ -234,7 +234,6 @@ class Game:
 
     def update(self):
 
-        # update portion of the game loop
         self.all_sprites.update()
 
         self.camera.update(self.player)
@@ -275,31 +274,21 @@ class Game:
 
             self.player.position += vec(MOB_KNOCKBACK, 0).rotate(-hits[0].rotation)
 
+        # Bullets hit mobs
+
         hits = pg.sprite.groupcollide(self.mobs, self.bullets, False, True)
 
-        for hit in hits:
+        for mob in hits:
 
-            hit.health -= BULLET_DAMAGE
-            hit.vel = vec(0, 0)
+            for bullet in hits[mob]:
 
-        # Bullets disappear when they hit the zombie, but the zombies don't.
+                mob.health -= bullet.damage
 
-    def draw_grid(self):
-
-        for x in range(0, WIDTH, TILESIZE):
-
-            pg.draw.line(self.screen, LIGHTGREY, (x, 0), (x, HEIGHT))
-
-        for y in range(0, HEIGHT, TILESIZE):
-
-            pg.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y))
+            mob.vel = vec(0, 0)
 
     def draw(self):
 
         pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
-
-        # self.screen.fill(BGCOLOR)
-        # self.draw_grid()
 
         self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
 
@@ -325,8 +314,6 @@ class Game:
         # HUD
 
         draw_player_health(self.screen, 10, 10, self.player.health / PLAYER_HEALTH)
-
-        # self.all_sprites.draw(self.screen)
 
         if self.paused:
 

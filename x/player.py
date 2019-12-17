@@ -1,4 +1,4 @@
-from x.weapons import Pistol, WeaponMode
+from x.weapons import Pistol, WeaponMode, Shotgun
 import pygame as pg
 from os import path
 
@@ -32,7 +32,7 @@ class Player(pg.sprite.Sprite):
         self.rotation = 0
 
         self.health = self.HEALTH
-        self.weapon = Pistol(game, x, y, self.rotation)
+        self.weapon = Shotgun(game, x, y, self.rotation)
         self.rotation_speed = 0
         self.is_firing = False
 
@@ -54,9 +54,13 @@ class Player(pg.sprite.Sprite):
         :return:
         """
 
+        # Also, do stuff with kickback here
+
         if self.weapon.MODE == WeaponMode.SEMI_AUTOMATIC:
 
             self.weapon.fire()
+
+            self.velocity = vec(self.weapon.KICKBACK, 0).rotate(-self.rotation)
 
         else:
 
@@ -142,6 +146,8 @@ class Player(pg.sprite.Sprite):
         if self.is_firing:
 
             self.weapon.fire()
+
+            self.velocity = vec(self.weapon.KICKBACK, 0).rotate(-self.rotation)
 
 
 def collide_with_walls(sprite, group, dir):
