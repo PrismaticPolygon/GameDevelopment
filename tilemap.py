@@ -1,20 +1,13 @@
 import pygame as pg
-from os import path
 import pytmx
-from settings import *
-
-
-def collide_hit_rect(one, two):
-
-    return one.hit_rect.colliderect(two.rect)
+from os import path
+from settings import WIDTH, HEIGHT
 
 class TiledMap:
 
     def __init__(self, filename):
 
-        file_path = path.join("maps", filename  + ".tmx")
-
-        tm = pytmx.load_pygame(file_path, pixelalpha=True)
+        tm = pytmx.load_pygame(path.join("maps", filename  + ".tmx"), pixelalpha=True)
 
         self.width = tm.width * tm.tilewidth
         self.height = tm.height * tm.tileheight

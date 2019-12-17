@@ -1,12 +1,8 @@
 import sys
 import pygame as pg
 from settings import *
-from os import path
 from tilemap import Camera, TiledMap
-from random import choice, randint, random
-
-from sprites import Obstacle, Item, collide_hit_rect
-from x import *
+from sprites import *
 
 def draw_player_health(surf, x, y, pct):
 
@@ -61,14 +57,8 @@ class Game:
 
         game_folder = path.dirname(__file__)
 
-        img_folder = path.join(game_folder, "assets", "PNG", "Man Blue")
-
-        wall_img_path = path.join(game_folder, "assets", "PNG", "Tiles", WALL_IMG)
-        zombie_img_path = path.join(game_folder, "assets", "PNG", "Zombie 1", MOB_IMG)
-        bullet_img_path = path.join(game_folder, BULLET_IMG)
-
-        self.title_font = path.join(game_folder, "assets", "ZOMBIE.TTF")
-        self.hud_font = path.join(game_folder, "assets", "Impacted2.0.ttf")
+        self.title_font = "assets/fonts/ZOMBIE.TTF"
+        self.hud_font = "assets/fonts/Impacted2.0.TTF"
 
         self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
         self.dim_screen.fill((0, 0, 0, 180))
@@ -77,12 +67,6 @@ class Game:
         self.map_img = self.map.make_map()
         self.map_rect = self.map_img.get_rect()
 
-        self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha()
-        self.wall_img = pg.image.load(wall_img_path).convert_alpha()    # No ned to scale.
-        self.mob_img = pg.image.load(zombie_img_path).convert_alpha()    # No ned to scale.
-        self.bullet_img = pg.image.load(bullet_img_path)
-
-
         self.fog = pg.Surface((WIDTH, HEIGHT))
         self.fog.fill(NIGHT_COLOR)
 
@@ -90,64 +74,7 @@ class Game:
         self.light_mask = pg.transform.scale(self.light_mask, LIGHT_RADIUS)
         self.light_rect = self.light_mask.get_rect()
 
-
-        self.splat = pg.image.load("assets/splat green.png").convert_alpha()
-        self.splat = pg.transform.scale(self.splat, (64, 64))
-
-        self.item_images = dict()
-
-        for item in ITEM_IMAGES:
-
-            self.item_images[item] = pg.image.load(path.join(game_folder, ITEM_IMAGES[item])).convert_alpha()
-
-            self.item_images[item] = pg.transform.scale(self.item_images[item], (32, 32))
-
-        self.gun_flashes = list()
-
-        for img in MUZZLE_FLASHES:
-
-            self.gun_flashes.append(pg.image.load(path.join(game_folder, img)).convert_alpha())
-
-        # Sound loading
-
         pg.mixer.music.load(BG_MUSIC)
-
-        self.effect_sounds = dict()
-
-        for type in EFFECT_SOUNDS:
-
-            self.effect_sounds[type] = pg.mixer.Sound(EFFECT_SOUNDS[type])
-
-        self.weapon_sounds = dict()
-
-        self.weapon_sounds["gun"] = []
-
-        for snd in WEAPON_SOUNDS_GUN:
-
-            self.weapon_sounds["gun"].append(pg.mixer.Sound(snd))
-
-        self.zombie_moan_sounds = []
-
-        for snd in ZOMBIE_MOAN_SOUNDS:
-
-            sound = pg.mixer.Sound(snd)
-            sound.set_volume(0.2)
-
-            self.zombie_moan_sounds.append(sound)
-
-        self.player_hit_sounds = []
-
-        for snd in PLAYER_HIT_SOUNDS:
-
-            self.player_hit_sounds.append(pg.mixer.Sound(snd))
-
-        self.zombie_hit_sounds = []
-
-        for snd in ZOMBIE_HIT_SOUNDS:
-
-            self.zombie_hit_sounds.append(pg.mixer.Sound(snd))
-
-        # Resize if necessary.
 
     def new(self):
         # initialize all variables and do all the setup for a new game
@@ -169,13 +96,17 @@ class Game:
 
         # Aha. It tries to draw it! That's reassuring.
         # The image will depend on whether we've got it equipped or not.
+        # I'm not strictly sure what has changed :(
 
         for tile_object in self.map.tmxdata.objects:
 
-            center = vec(tile_object.x + tile_object.width / 2, tile_object.y + tile_object.height / 2)
+            print(tile_object.x, tile_object.width)
 
-            row = tile_object.y
-            col = tile_object.x
+            center = vec(float(tile_object.x) + float(tile_object.width) / 2,
+                         float(tile_object.y) + float(tile_object.height) / 2)
+
+            row = float(tile_object.y)
+            col = float(tile_object.x)
 
             if tile_object.name == "player":
 
@@ -183,18 +114,19 @@ class Game:
 
             if tile_object.name == "wall":
 
-                Obstacle(self, col, row, tile_object.width, tile_object.height)
+                Obstacle(self, col, row, float(tile_object.width), float(tile_object.height))
 
             if tile_object.name == "zombie":
 
                 Zombie(self, center.x, center.y)
 
-            if tile_object.name in ["health", "shotgun"]:
+            if tile_object.name == "health":
 
-                Item(self, center, tile_object.name)
+                MedkitItem(self, center)
 
+            if tile_object.name == "shotgun":
 
-
+                ShotgunItem(self, center)
 
         self.camera = Camera(self.map.width, self.map.height)
         self.draw_debug = False
@@ -262,35 +194,46 @@ class Game:
 
         # Player hits items
 
-        hits = pg.sprite.spritecollide(self.player, self.items, False)
+        items = pg.sprite.spritecollide(self.player, self.items, False)
 
-        for hit in hits:
+        for item in items:
 
-            if hit.type == "health" and self.player.health < PLAYER_HEALTH:
+            if isinstance(item, MedkitItem) and self.player.health < 100:
 
-                self.effect_sounds["health_up"].play()
+                self.player.add_health(item.AMOUNT)
 
-                self.player.add_health(HEALTH_PACK_AMOUNT)
+                item.pickup()
 
-                hit.kill()
-
-            if hit.type == "shotgun":
-
-                hit.kill()
+            if isinstance(item, ShotgunItem):
 
                 self.player.weapon = Shotgun(self, self.player.position.x, self.player.position.y, self.player.rotation)
+
+                item.kill()
+
+        # Player hits weapons
+
+        # weapons = pg.sprite.spritecollide(self.player, self.weapons, False)
+        #
+        # for weapon in weapons:
+        #
+        #     if isinstance(weapon, Shotgun):
+        #
+        #         self.player.weapon = Shotgun(self, self.player.position.sprites, self.player.position.y, self.player.rotation)
+        #
+        #     if isinstance(weapon, Pistol):
+        #
+        #         self.player.weapon = Pistol(self, self.player.position.sprites, self.player.position.y, self.player.rotation)
 
         # Mob hits player
 
         hits = pg.sprite.spritecollide(self.player, self.mobs, False, collide_hit_rect)
 
+        # This should be a dictionary: player -> mobs that we've been hit by.
+        # So naturally, there should be only one key.
+
         for hit in hits:
 
-            if random() < 0.7:
-
-                choice(self.player_hit_sounds).play()
-
-            self.player.health -= MOB_DAMAGE
+            self.player.health -= 10
 
             hit.vel = vec(0, 0)
 
@@ -300,9 +243,11 @@ class Game:
 
         if hits:
 
-            self.player.position += vec(MOB_KNOCKBACK, 0).rotate(-hits[0].rotation)
+            print(hits)
 
-            self.player.hit( )
+            self.player.position += vec(20, 0).rotate(-hits[0].rotation)
+
+            self.player.hit()
 
         # Bullets hit mobs
 
@@ -359,7 +304,7 @@ class Game:
 
         # HUD
 
-        draw_player_health(self.screen, 10, 10, self.player.health / PLAYER_HEALTH)
+        draw_player_health(self.screen, 10, 10, self.player.health / 100)
         self.draw_text('Zombies: {}'.format(len(self.mobs)), self.hud_font, 30, WHITE, WIDTH - 10, 10, align="ne")
 
         if self.paused:

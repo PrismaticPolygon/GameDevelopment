@@ -39,3 +39,15 @@ Sounds [here](https://www.youtube.com/redirect?q=http%3A%2F%2Fkidscancode.org%2F
 
 * Game economy (support to game type, game feedback, game difficulty)
 * Advanced interaction (game physics, object tracking, steering behaviour)
+
+
+# TODO: make generic "MOB" class
+# TODO: rationalise asset loading to match sprite superclasses.
+# TODO: make weapon class.
+# TODO: add bloom. Represent with a cone.
+# Then we can start with cool traits and improved shooting skill and whatnot.
+# We can have spread increase the faster that you're travelling.
+# Magazine capacity.
+# We'll also want a cone of vision.
+
+# Melee attack: https://www.youtube.com/watch?v=AaJopFFkmNo
