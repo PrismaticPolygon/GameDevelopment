@@ -79,7 +79,7 @@ WEAPON_LAYER = 3
 ITEMS_LAYER = 1
 
 # ITEMS
-ITEM_IMAGES = {"health": "assets/healthpack.png"}
+ITEM_IMAGES = {"health": "assets/health_pack.png", "shotgun": "assets/obj_shotgun.png"}
 
 HEALTH_PACK_AMOUNT = 20
 BOB_RANGE = 15

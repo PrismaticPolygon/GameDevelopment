@@ -1,4 +1,5 @@
 from x.weapons import Pistol, WeaponMode, Shotgun
+from itertools import chain
 import pygame as pg
 from os import path
 
@@ -25,16 +26,21 @@ class Player(pg.sprite.Sprite):
         self.BARREL_OFFSET = vec(30, 10)
         self.HEALTH = 100
 
+        self.DAMAGE_ALPHA = [i for i in range(0, 255, 55)]
+
         # Player variables
 
         self.velocity = vec(0, 0)
         self.position = vec(x, y)
         self.rotation = 0
 
+        self.damage_alpha = None
+
         self.health = self.HEALTH
-        self.weapon = Shotgun(game, x, y, self.rotation)
+        self.weapon = Pistol(game, x, y, self.rotation)
         self.rotation_speed = 0
         self.is_firing = False
+        self.damaged = False
 
         # Image variables
 
@@ -46,6 +52,12 @@ class Player(pg.sprite.Sprite):
 
         self.hit_rect = self.HIT_RECT
         self.hit_rect.center = self.rect.center
+
+    def hit(self):
+
+        self.damaged = True
+
+        self.damage_alpha = chain(self.DAMAGE_ALPHA * 3)
 
     def fire(self):
         """
@@ -120,6 +132,16 @@ class Player(pg.sprite.Sprite):
         self.rotation = (self.rotation + self.rotation_speed * self.game.dt) % 360
 
         self.image = pg.transform.rotate(self.game.player_img, self.rotation)
+
+        if self.damaged:
+
+            try:
+
+                self.image.fill((255, 0, 0, next(self.damage_alpha)), special_flags=pg.BLEND_RGBA_MULT)
+
+            except StopIteration:
+
+                self.damaged = False
 
         self.rect = self.image.get_rect()
         self.rect.center = self.position

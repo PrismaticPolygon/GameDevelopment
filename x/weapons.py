@@ -35,12 +35,14 @@ class Bullet(pg.sprite.Sprite):
         # Bullet variables
 
         self.position = vec(position)
-        self.velocity = velocity
+        self.velocity = velocity * uniform(0.9, 1.1)
         self.damage = damage
 
         # Image variables
 
-        self.image = game.bullet_img
+        self.original_image = pg.image.load("assets/bullet.png").convert_alpha()
+        self.image = self.original_image.copy()
+
         self.rect = self.image.get_rect()
         self.hit_rect = self.rect
         self.rect.center = position
@@ -55,6 +57,8 @@ class Bullet(pg.sprite.Sprite):
             self.kill()
 
 class Firearm(pg.sprite.Sprite):
+
+    # Maybe this... overwrites them? Oh right. In a manner of speaking, yes!
 
     def __init__(self, game, x, y, rotation):
 
@@ -164,7 +168,7 @@ class Pistol(Firearm):
 
         # Weapon-specific constants
 
-        self.CAPACITY = 8
+        self.capacity = self.CAPACITY = 8
         self.MODE = WeaponMode.SEMI_AUTOMATIC
         self.SPEED = 500
         self.SPREAD = 5
@@ -176,6 +180,7 @@ class Pistol(Firearm):
         # Weapon-specific variables
 
         self.image = pg.image.load(path.join("assets", "PNG", "weapon_silencer.png")).convert_alpha()
+        self.sound = pg.mixer.Sound("assets/sounds/pistol.wav")
 
         self.rect = self.image.get_rect()
         self.hit_rect = self.rect
@@ -189,7 +194,7 @@ class Shotgun(Firearm):
 
         # Weapon-specific constants
 
-        self.CAPACITY = 5
+        self.capacity = self.CAPACITY = 5
         self.MODE = WeaponMode.SEMI_AUTOMATIC
         self.SPEED = 400
         self.SPREAD = 20
@@ -202,6 +207,7 @@ class Shotgun(Firearm):
         # Weapon-specific variables
 
         self.image = pg.image.load(path.join("assets", "PNG", "weapon_silencer.png")).convert_alpha()
+        self.sound = pg.mixer.Sound("assets/sounds/shotgun.wav")
 
         # Each weapon should have a projectile image as well.
 

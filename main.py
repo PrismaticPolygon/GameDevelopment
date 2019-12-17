@@ -173,7 +173,7 @@ class Game:
 
                 Zombie(self, center.x, center.y)
 
-            if tile_object.name in ["health"]:
+            if tile_object.name in ["health", "shotgun"]:
 
                 Item(self, center, tile_object.name)
 
@@ -254,6 +254,12 @@ class Game:
 
                 hit.kill()
 
+            if hit.type == "shotgun":
+
+                hit.kill()
+
+                self.player.weapon = Shotgun(self, self.player.position.x, self.player.position.y, self.player.rotation)
+
         # Mob hits player
 
         hits = pg.sprite.spritecollide(self.player, self.mobs, False, collide_hit_rect)
@@ -275,6 +281,8 @@ class Game:
         if hits:
 
             self.player.position += vec(MOB_KNOCKBACK, 0).rotate(-hits[0].rotation)
+
+            self.player.hit()
 
         # Bullets hit mobs
 
