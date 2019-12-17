@@ -193,5 +193,6 @@
   <object id="99" name="health" x="848" y="912" width="32" height="32"/>
   <object id="100" name="shotgun" x="976" y="528" width="32" height="32"/>
   <object id="101" name="qbit" x="400" y="208" width="32" height="32"/>
+  <object id="102" name="portal" x="600" y="200" width="32" height="32"/>
  </objectgroup>
 </map>

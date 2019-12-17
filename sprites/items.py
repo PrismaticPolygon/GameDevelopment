@@ -70,6 +70,8 @@ class ShotgunItem(Item):
 
         Item.__init__(self, game, position)
 
+        # Aha. I'm being a little silly. They should OF COURSE be inputs.
+
         self.image = pg.image.load("assets/images/shotgun.png").convert_alpha()
         self.pickup_sound = pg.mixer.Sound("assets/sounds/gun_pickup.wav")
 

@@ -94,6 +94,10 @@ class Game:
 
                 QBitItem(self, center)
 
+            if tile_object.name == "portal":
+
+                self.portal = Portal(self, center.x, center.y)
+
         self.camera = Camera(self.map.width, self.map.height)
         self.draw_debug = False
 
@@ -153,6 +157,15 @@ class Game:
                 self.player.qbit_count += 1
 
             item.pickup()
+
+        # Player hits portal
+
+        if collide_hit_rect(self.player, self.portal) and self.player.qbit_count == NUMBER_OF_QBITS:
+
+            print("The game has been won!")
+
+            self.portal.kill()
+
         # Mob hits player
 
         hits = pg.sprite.spritecollide(self.player, self.mobs, False, collide_hit_rect)
@@ -198,6 +211,8 @@ class Game:
         self.fog.blit(self.light_mask, self.light_rect)
 
         self.screen.blit(self.fog, (0, 0), special_flags=pg.BLEND_MULT)
+
+    # Of course, it's more of a structure than a item, but hey ho. We'll just scale it to be massive.
 
     def draw(self):
 
