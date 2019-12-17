@@ -68,14 +68,15 @@ class Firearm(pg.sprite.Sprite):
 
         # Weapon constants
 
-        self.CAPACITY = 8
+        self.CAPACITY = 1
         self.MODE = WeaponMode.SEMI_AUTOMATIC
-        self.SPEED = 500
-        self.SPREAD = 5
-        self.KICKBACK = 200
-        self.DAMAGE = 10
-        self.RATE_OF_FIRE = 150
-        self.RELOAD_SPEED = 1000
+        self.SPEED = 1
+        self.SPREAD = 1
+        self.KICKBACK = 1
+        self.DAMAGE = 1
+        self.RATE_OF_FIRE = 1
+        self.RELOAD_SPEED = 1
+        self.BULLET_COUNT = 1
 
         # Weapon variables
 
@@ -127,6 +128,34 @@ class Firearm(pg.sprite.Sprite):
             self.reload_timer = threading.Timer(self.RELOAD_SPEED / 1000, reload_callback)
             self.reload_timer.start()  # after self.RELOAD_SPEED / 1000 seconds, 'callback' will be called
 
+    def fire(self):
+
+        if self.capacity > 0 and self.reload_timer is None:
+
+            now = pg.time.get_ticks()
+
+            if self.sound.get_num_channels() > 2:
+
+                self.sound.stop()
+
+            self.sound.play()
+
+            self.last_fired_at = now
+            self.capacity -= 1
+
+            direction = vec(1, 0).rotate(-self.rotation)
+
+            for i in range(self.BULLET_COUNT):
+
+                spread = uniform(-self.SPREAD, self.SPREAD)
+                velocity = direction.rotate(spread) * self.SPEED
+
+                print(velocity)
+
+                Bullet(self.game, self.position, velocity, self.DAMAGE)
+
+            MuzzleFlash(self.game, self.position, -self.rotation)
+
 class Pistol(Firearm):
 
     def __init__(self, game, x, y, rotation):
@@ -151,24 +180,6 @@ class Pistol(Firearm):
         self.rect = self.image.get_rect()
         self.hit_rect = self.rect
         self.rect.center = self.position
-
-    def fire(self):
-
-        if self.capacity > 0 and self.reload_timer is None:
-
-            now = pg.time.get_ticks()
-
-            self.sound.play()
-            self.last_fired_at = now
-            self.capacity -= 1
-
-            spread = uniform(-self.SPREAD, self.SPREAD)
-            direction = vec(1, 0).rotate(-self.rotation)
-            velocity = direction.rotate(spread) * self.SPEED
-
-            Bullet(self.game, self.position, velocity, self.DAMAGE)
-
-            MuzzleFlash(self.game, self.position, -self.rotation)
 
 class Shotgun(Firearm):
 
@@ -197,27 +208,3 @@ class Shotgun(Firearm):
         self.rect = self.image.get_rect()
         self.hit_rect = self.rect
         self.rect.center = self.position
-
-    def fire(self):
-
-        if self.capacity > 0 and self.reload_timer is None:
-
-            now = pg.time.get_ticks()
-
-            self.sound.play()
-            self.last_fired_at = now
-            self.capacity -= 1
-
-            direction = vec(1, 0).rotate(-self.rotation)
-            position = self.position
-
-            for i in range(self.BULLET_COUNT):
-
-                spread = uniform(-self.SPREAD, self.SPREAD)
-                velocity = direction.rotate(spread) * self.SPEED
-
-                print(velocity)
-
-                Bullet(self.game, position, velocity, self.DAMAGE)
-
-            MuzzleFlash(self.game, self.position, -self.rotation)
