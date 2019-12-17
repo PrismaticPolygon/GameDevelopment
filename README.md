@@ -3,7 +3,7 @@
 ## Marks
 
 Player must seek 10 treasures in our university campus. Treasure hide-and-seek theme.
-Based on [this]() Youtube tutorial.
+Based on [this](https://www.youtube.com/playlist?list=PLsk-HSGFjnaGQq7ybM8Lgkh5EMxUWPm2i) Youtube tutorial.
 Assets can be downloaded [here](https://kenney.nl/assets/topdown-shooter)
 
 Sounds [here](https://www.youtube.com/redirect?q=http%3A%2F%2Fkidscancode.org%2Fblog%2Fimg%2FSounds.zip&redir_token=NFmDLLMugNkdO4VeCBa6wR2PZB18MTU3NjU4MjQyOEAxNTc2NDk2MDI4&event=video_description&v=vzJ0WG2LSYw)

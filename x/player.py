@@ -34,6 +34,7 @@ class Player(pg.sprite.Sprite):
         self.health = self.HEALTH
         self.weapon = Pistol(game, x, y, self.rotation)
         self.rotation_speed = 0
+        self.is_firing = False
 
         # Image variables
 
@@ -46,7 +47,33 @@ class Player(pg.sprite.Sprite):
         self.hit_rect = self.HIT_RECT
         self.hit_rect.center = self.rect.center
 
+    def fire(self):
+        """
+        Called on the K_SPACE KEYDOWN event. If the weapon is semi-automatic, fire once. If it is automatic, set the
+        is_firing flag to True. When this is True, the player fires a new projectile when update is called.
+        :return:
+        """
+
+        if self.weapon.MODE == WeaponMode.SEMI_AUTOMATIC:
+
+            self.weapon.fire()
+
+        else:
+
+            self.is_firing = True
+
+    def stop_firing(self):
+        """
+        Called on the K_SPACE KEYUP event. Sets the is_firing flag to False, which stops the player firing new
+        projectiles when update is called.
+        :return:
+        """
+
+        self.is_firing = False
+
     def get_keys(self):
+
+        # Keydown gives keys which are pressed down on that frame.
 
         self.velocity = vec(0, 0)
         self.rotation_speed = 0
@@ -69,23 +96,10 @@ class Player(pg.sprite.Sprite):
 
             self.velocity = vec(-self.SPEED / 2, 0).rotate(-self.rotation)
 
-        if self.weapon.MODE == WeaponMode.SEMI_AUTOMATIC:
 
-            for event in pg.event.get(pg.KEYDOWN):
+    def reload(self):
 
-               if event.key == pg.K_SPACE:
-
-                    self.weapon.fire()
-
-        else:
-
-            if keys[pg.K_SPACE]:
-
-                self.weapon.fire()
-
-        if keys[pg.K_r]:
-
-            self.weapon.reload()
+        self.weapon.reload()
 
     def add_health(self, amount):
 
@@ -124,6 +138,11 @@ class Player(pg.sprite.Sprite):
 
         self.weapon.rotation = self.rotation
         self.weapon.position = self.position + self.BARREL_OFFSET.rotate(-self.rotation)
+
+        if self.is_firing:
+
+            self.weapon.fire()
+
 
 def collide_with_walls(sprite, group, dir):
 

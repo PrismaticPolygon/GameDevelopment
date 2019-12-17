@@ -338,7 +338,7 @@ class Game:
     def events(self):
 
         # catch all events here
-        for event in pg.event.get(False):
+        for event in pg.event.get():
 
             if event.type == pg.QUIT:
 
@@ -357,6 +357,18 @@ class Game:
                 if event.key == pg.K_p:
 
                     self.paused = not self.paused
+
+                if event.key == pg.K_r:
+
+                    self.player.reload()
+
+                if event.key == pg.K_SPACE:
+
+                    self.player.fire()
+
+            if event.type == pg.KEYUP and event.key == pg.K_SPACE:
+
+                self.player.stop_firing()
 
     def show_start_screen(self):
 

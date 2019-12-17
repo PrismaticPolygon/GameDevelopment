@@ -17,7 +17,7 @@ class WeaponMode(Enum):
     AUTOMATIC = 0
     SEMI_AUTOMATIC = 1
 
-sound_path = path.join("assets", "sound", "weapons")
+sound_path = "assets/sounds/snd/shotgun.wav"
 
 class Bullet(pg.sprite.Sprite):
 
@@ -79,7 +79,7 @@ class Firearm(pg.sprite.Sprite):
 
         self.capacity = self.CAPACITY
         self.last_fired_at = 0
-        self.sound = pg.mixer.Sound(path.join(sound_path, "pistol", "shot.wav"))
+        self.sound = pg.mixer.Sound("assets/sounds/snd/shotgun.wav")
 
         self.reload_timer = None
 
