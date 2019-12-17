@@ -55,6 +55,8 @@ class Game:
 
         self.load_data()
 
+        self.night = False
+
     def load_data(self):
 
         game_folder = path.dirname(__file__)
@@ -79,6 +81,15 @@ class Game:
         self.wall_img = pg.image.load(wall_img_path).convert_alpha()    # No ned to scale.
         self.mob_img = pg.image.load(zombie_img_path).convert_alpha()    # No ned to scale.
         self.bullet_img = pg.image.load(bullet_img_path)
+
+
+        self.fog = pg.Surface((WIDTH, HEIGHT))
+        self.fog.fill(NIGHT_COLOR)
+
+        self.light_mask = pg.image.load(LIGHT_MASK)
+        self.light_mask = pg.transform.scale(self.light_mask, LIGHT_RADIUS)
+        self.light_rect = self.light_mask.get_rect()
+
 
         self.splat = pg.image.load("assets/splat green.png").convert_alpha()
         self.splat = pg.transform.scale(self.splat, (64, 64))
@@ -305,6 +316,18 @@ class Game:
 
             mob.vel = vec(0, 0)
 
+    def render_fog(self):
+
+        # Draw the light mask (gradient) onto the fog image.
+
+        self.fog.fill(NIGHT_COLOR)
+
+        self.light_rect.center = self.camera.apply(self.player).center
+
+        self.fog.blit(self.light_mask, self.light_rect)
+
+        self.screen.blit(self.fog, (0, 0), special_flags=pg.BLEND_MULT)
+
     def draw(self):
 
         pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
@@ -329,6 +352,10 @@ class Game:
 
                 pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(wall.rect), 1)
 
+
+        if self.night:
+
+            self.render_fog()
 
         # HUD
 
@@ -368,6 +395,10 @@ class Game:
                 if event.key == pg.K_r:
 
                     self.player.reload()
+
+                if event.key == pg.K_n:
+
+                    self.night = not self.night
 
                 if event.key == pg.K_SPACE:
 
