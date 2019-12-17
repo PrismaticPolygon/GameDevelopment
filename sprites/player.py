@@ -46,6 +46,8 @@ class Player(pg.sprite.Sprite):
         self.position = vec(x, y)
         self.rotation = 0
 
+        self.qbit_count = 0
+
         self.damage_alpha = None
 
         self.health = self.HEALTH

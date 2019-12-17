@@ -37,6 +37,7 @@ Three sprints
     * More particle effects (fire, smoke)
     * More weapons (sniper rifle, rocket launcher)
     * Items (ammunition, armour)
+    * Start menu
 
 ## Marks
 

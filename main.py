@@ -3,35 +3,7 @@ import pygame as pg
 from settings import *
 from tilemap import Camera, TiledMap
 from sprites import *
-
-def draw_player_health(surf, x, y, pct):
-
-    if pct < 0:
-
-        pct = 0
-
-    BAR_LENGTH = 100
-    BAR_HEIGHT = 20
-
-    fill = pct * BAR_LENGTH
-    outline_rect = pg.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
-
-    fill_rect = pg.Rect(x, y, int(fill), BAR_HEIGHT)
-
-    if pct > 0.66:
-
-        color = GREEN
-
-    elif pct > 0.33:
-
-        color = YELLOW
-
-    else:
-
-        color = RED
-
-    pg.draw.rect(surf, color, fill_rect)
-    pg.draw.rect(surf, WHITE, outline_rect, 2)
+from hud import draw_player_health, draw_text
 
 class Game:
 
@@ -52,10 +24,9 @@ class Game:
         self.load_data()
 
         self.night = False
+        self.paused = False
 
     def load_data(self):
-
-        game_folder = path.dirname(__file__)
 
         self.title_font = "assets/fonts/ZOMBIE.TTF"
         self.hud_font = "assets/fonts/Impacted2.0.TTF"
@@ -77,11 +48,8 @@ class Game:
         pg.mixer.music.load(BG_MUSIC)
 
     def new(self):
-        # initialize all variables and do all the setup for a new game
 
         self.all_sprites = pg.sprite.LayeredUpdates()
-
-        self.paused = False
 
         self.walls = pg.sprite.Group()
         self.mobs = pg.sprite.Group()
@@ -94,13 +62,7 @@ class Game:
         self.map_img = self.map.make_map()
         self.map_rect = self.map_img.get_rect()
 
-        # Aha. It tries to draw it! That's reassuring.
-        # The image will depend on whether we've got it equipped or not.
-        # I'm not strictly sure what has changed :(
-
         for tile_object in self.map.tmxdata.objects:
-
-            print(tile_object.x, tile_object.width)
 
             center = vec(float(tile_object.x) + float(tile_object.width) / 2,
                          float(tile_object.y) + float(tile_object.height) / 2)
@@ -128,34 +90,14 @@ class Game:
 
                 ShotgunItem(self, center)
 
+            if tile_object.name == "qbit":
+
+                QBitItem(self, center)
+
         self.camera = Camera(self.map.width, self.map.height)
         self.draw_debug = False
 
         # self.effect_sounds["level_start"].play()
-
-    def draw_text(self, text, font_name, size, color, x, y, align="nw"):
-        font = pg.font.Font(font_name, size)
-        text_surface = font.render(text, True, color)
-        text_rect = text_surface.get_rect()
-        if align == "nw":
-            text_rect.topleft = (x, y)
-        if align == "ne":
-            text_rect.topright = (x, y)
-        if align == "sw":
-            text_rect.bottomleft = (x, y)
-        if align == "se":
-            text_rect.bottomright = (x, y)
-        if align == "n":
-            text_rect.midtop = (x, y)
-        if align == "s":
-            text_rect.midbottom = (x, y)
-        if align == "e":
-            text_rect.midright = (x, y)
-        if align == "w":
-            text_rect.midleft = (x, y)
-        if align == "center":
-            text_rect.center = (x, y)
-        self.screen.blit(text_surface, text_rect)
 
     def run(self):
 
@@ -202,34 +144,18 @@ class Game:
 
                 self.player.add_health(item.AMOUNT)
 
-                item.pickup()
-
             if isinstance(item, ShotgunItem):
 
                 self.player.weapon = Shotgun(self, self.player.position.x, self.player.position.y, self.player.rotation)
 
-                item.kill()
+            if isinstance(item, QBitItem):
 
-        # Player hits weapons
+                self.player.qbit_count += 1
 
-        # weapons = pg.sprite.spritecollide(self.player, self.weapons, False)
-        #
-        # for weapon in weapons:
-        #
-        #     if isinstance(weapon, Shotgun):
-        #
-        #         self.player.weapon = Shotgun(self, self.player.position.sprites, self.player.position.y, self.player.rotation)
-        #
-        #     if isinstance(weapon, Pistol):
-        #
-        #         self.player.weapon = Pistol(self, self.player.position.sprites, self.player.position.y, self.player.rotation)
-
+            item.pickup()
         # Mob hits player
 
         hits = pg.sprite.spritecollide(self.player, self.mobs, False, collide_hit_rect)
-
-        # This should be a dictionary: player -> mobs that we've been hit by.
-        # So naturally, there should be only one key.
 
         for hit in hits:
 
@@ -287,17 +213,6 @@ class Game:
 
             self.screen.blit(sprite.image, self.camera.apply(sprite))
 
-            if self.draw_debug:
-
-                pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(sprite.hit_rect), 1)
-
-        if self.draw_debug:
-
-            for wall in self.walls:
-
-                pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(wall.rect), 1)
-
-
         if self.night:
 
             self.render_fog()
@@ -305,12 +220,14 @@ class Game:
         # HUD
 
         draw_player_health(self.screen, 10, 10, self.player.health / 100)
-        self.draw_text('Zombies: {}'.format(len(self.mobs)), self.hud_font, 30, WHITE, WIDTH - 10, 10, align="ne")
+        draw_text(self.screen, 'Zombies: {}'.format(len(self.mobs)), self.hud_font, 30, WHITE, WIDTH - 10, 10, align="ne")
+
+        draw_text(self.screen, 'Q-bits: {}'.format(self.player.qbit_count), self.hud_font, 30, WHITE, WIDTH - 170, 10, align="ne")
 
         if self.paused:
 
             self.screen.blit(self.dim_screen, (0, 0))
-            self.draw_text("Paused", self.title_font, 105, RED, WIDTH / 2, HEIGHT / 2, align="center")
+            draw_text(self.screen, "Paused", self.title_font, 105, RED, WIDTH / 2, HEIGHT / 2, align="center")
 
         pg.display.flip()
 
@@ -329,21 +246,17 @@ class Game:
 
                     self.quit()
 
-                if event.key == pg.K_h:
-
-                    self.draw_debug = not self.draw_debug
-
                 if event.key == pg.K_p:
 
                     self.paused = not self.paused
 
-                if event.key == pg.K_r:
-
-                    self.player.reload()
-
                 if event.key == pg.K_n:
 
                     self.night = not self.night
+
+                if event.key == pg.K_r:
+
+                    self.player.reload()
 
                 if event.key == pg.K_SPACE:
 
@@ -360,8 +273,8 @@ class Game:
     def show_go_screen(self):
 
         self.screen.fill(BLACK)
-        self.draw_text("GAME OVER", self.title_font, 100, RED, WIDTH / 2, HEIGHT / 2, align="center")
-        self.draw_text("Press a key to start", self.title_font, 75, WHITE, WIDTH / 2, HEIGHT * 3 / 4, align="center")
+        draw_text(self.screen, "GAME OVER", self.title_font, 100, RED, WIDTH / 2, HEIGHT / 2, align="center")
+        draw_text(self.screen, "Press a key to start", self.title_font, 75, WHITE, WIDTH / 2, HEIGHT * 3 / 4, align="center")
 
         pg.display.flip()
 
@@ -389,6 +302,7 @@ class Game:
 
 # create the game object
 g = Game()
+
 g.show_start_screen()
 
 while True:
