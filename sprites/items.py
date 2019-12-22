@@ -70,12 +70,10 @@ class ShotgunItem(Item):
 
         Item.__init__(self, game, position)
 
-        # Aha. I'm being a little silly. They should OF COURSE be inputs.
-
         self.image = pg.image.load("assets/images/shotgun.png").convert_alpha()
         self.pickup_sound = pg.mixer.Sound("assets/sounds/gun_pickup.wav")
 
-        self.image = pg.transform.scale(self.image, (32, 32))
+        # self.image = pg.transform.scale(self.image, (32, 32))
 
 class QBitItem(Item):
 
@@ -83,7 +81,7 @@ class QBitItem(Item):
 
         Item.__init__(self, game, position)
 
-        self.image = pg.image.load("assets/images/qbit.jpg")
+        self.image = pg.image.load("assets/images/qbit.png").convert_alpha()
         self.pickup_sound = pg.mixer.Sound("assets/sounds/gun_pickup.wav")
 
         self.image = pg.transform.scale(self.image, (32, 32))

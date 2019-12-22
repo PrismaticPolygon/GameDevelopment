@@ -50,5 +50,5 @@ MUSIC_PATH = path.join(root, "assets", "music")
 BG_MUSIC = "assets/music/espionage.ogg"
 LEVEL_START = "assets/sounds/level_start.wav"
 
-NUMBER_OF_QBITS = 1
+NUMBER_OF_QBITS = 0
 MAX_MOBS = 50

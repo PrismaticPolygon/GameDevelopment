@@ -1,7 +1,6 @@
 import pygame as pg
 from settings import PLAYER_LAYER, MAX_MOBS
 from sprites import Zombie
-# from settings import *
 import random
 import math
 
@@ -31,12 +30,12 @@ class Portal(pg.sprite.Sprite):
 
         # Portal variables
 
-        self.rotation_speed = 5
+        self.rotation_speed = 8
         self.last_spawned = 0
 
         # Image variables
 
-        self.original_image = pg.image.load("assets/images/portal.jpg").convert_alpha()
+        self.original_image = pg.image.load("assets/images/portal.png").convert_alpha()
         self.original_image = pg.transform.scale(self.original_image, (self.SIZE, self.SIZE))
         self.image = self.original_image.copy()
 

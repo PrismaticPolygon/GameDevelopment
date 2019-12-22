@@ -28,10 +28,11 @@ class Game:
 
         self.player = None
         self.portal = None
+        self.NUMBER_OF_QBITS = 0
 
         self.load_data()
 
-        self.night = False
+        self.night = True
         self.paused = False
 
 
@@ -103,6 +104,8 @@ class Game:
 
                 QBitItem(self, center)
 
+                self.NUMBER_OF_QBITS += 1
+
             if tile_object.name == "portal":
 
                 self.portal = Portal(self, center.x, center.y)
@@ -155,9 +158,6 @@ class Game:
 
             keys = pg.key.get_pressed()
 
-            # Nah. We want a keydown event instead. And we want to check whether we're on the item at the same time.
-            # Fuck, I want to die.
-
             if isinstance(item, ShotgunItem):
 
                 self.player.weapon = Shotgun(self, self.player.position.x, self.player.position.y, self.player.rotation)
@@ -172,11 +172,11 @@ class Game:
 
         if self.portal is not None:
 
-            if collide_hit_rect(self.player, self.portal) and self.player.qbit_count == NUMBER_OF_QBITS:
-
-                print("The game has been won!")
+            if collide_hit_rect(self.player, self.portal) and self.player.qbit_count == self.NUMBER_OF_QBITS:
 
                 self.portal.kill()
+
+                self.playing = False
 
         # Mob hits player
 
@@ -193,8 +193,6 @@ class Game:
                 self.playing = False
 
         if hits:
-
-            print(hits)
 
             self.player.position += vec(20, 0).rotate(-hits[0].rotation)
 
@@ -249,7 +247,8 @@ class Game:
         draw_player_health(self.screen, 10, 10, self.player.health / 100)
         draw_text(self.screen, 'Zombies: {}'.format(len(self.mobs)), self.hud_font, 30, WHITE, WIDTH - 10, 10, align="ne")
 
-        draw_text(self.screen, 'Q-bits: {}'.format(self.player.qbit_count), self.hud_font, 30, WHITE, WIDTH - 170, 10, align="ne")
+        draw_text(self.screen, 'Q-bits: {} / {}'.format(self.player.qbit_count, self.NUMBER_OF_QBITS),
+                  self.hud_font, 30, WHITE, WIDTH - 200, 10, align="ne")
 
         if self.paused:
 
