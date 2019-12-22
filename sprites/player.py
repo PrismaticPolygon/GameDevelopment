@@ -1,6 +1,7 @@
 from sprites.weapons import Pistol, WeaponMode, Shotgun
 from itertools import chain
 from random import random, choice
+import math
 import pygame as pg
 from os import path
 from settings import PLAYER_LAYER
@@ -130,7 +131,6 @@ class Player(pg.sprite.Sprite):
 
             self.velocity = vec(-self.SPEED / 2, 0).rotate(-self.rotation)
 
-
     def reload(self):
 
         self.weapon.reload()
@@ -186,3 +186,19 @@ class Player(pg.sprite.Sprite):
             self.weapon.fire()
 
             self.velocity = vec(self.weapon.KICKBACK, 0).rotate(-self.rotation)
+
+    # https://stackoverflow.com/questions/44960680/how-to-make-a-sprite-rotate-to-face-the-mouse
+
+    # def rotate(self):
+    #
+    #     mouse_position = pg.mouse.get_pos()
+    #
+    #     # Calculate the vector to the mouse position by subtracting
+    #     # the self.pos vector from the mouse_pos.
+    #     rel_x, rel_y = mouse_position - self.position
+    #     # Use math.atan2 to get the angle in radians and convert it to degrees.
+    #     angle = -math.degrees(math.atan2(rel_y, rel_x))
+    #     # Rotate the image.
+    #     self.image = pg.transform.rotozoom(self.original_image, angle, 1)
+    #     # Update the rect and keep the center at the old position.
+    #     self.rect = self.image.get_rect(center=self.rect.center)

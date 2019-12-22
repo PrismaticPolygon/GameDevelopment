@@ -3,6 +3,9 @@ import pytmx
 from os import path
 from settings import WIDTH, HEIGHT
 
+# Let's think. I've got the loading working. I haven't really got level traversal working, but I don't think that that
+# will be too hard. We want a MVP. That's it. SO: I want to fix the images of the items that I do have.
+
 class TiledMap:
 
     def __init__(self, filename):

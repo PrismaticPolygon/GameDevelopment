@@ -21,10 +21,19 @@ class Game:
 
         pg.key.set_repeat(500, 100)
 
+        # Unique objects
+        # Okay. Why is it in the bottom right?
+        # Ideally, it would render in the centre. Solution: make every map at least the size that we expect.
+        # But now movement isn't working...
+
+        self.player = None
+        self.portal = None
+
         self.load_data()
 
         self.night = False
         self.paused = False
+
 
     def load_data(self):
 
@@ -134,10 +143,6 @@ class Game:
 
         self.camera.update(self.player)
 
-        if len(self.mobs) == 0:
-
-            self.playing = False
-
         # Player hits items
 
         items = pg.sprite.spritecollide(self.player, self.items, False)
@@ -147,6 +152,11 @@ class Game:
             if isinstance(item, MedkitItem) and self.player.health < 100:
 
                 self.player.add_health(item.AMOUNT)
+
+            keys = pg.key.get_pressed()
+
+            # Nah. We want a keydown event instead. And we want to check whether we're on the item at the same time.
+            # Fuck, I want to die.
 
             if isinstance(item, ShotgunItem):
 
@@ -160,11 +170,13 @@ class Game:
 
         # Player hits portal
 
-        if collide_hit_rect(self.player, self.portal) and self.player.qbit_count == NUMBER_OF_QBITS:
+        if self.portal is not None:
 
-            print("The game has been won!")
+            if collide_hit_rect(self.player, self.portal) and self.player.qbit_count == NUMBER_OF_QBITS:
 
-            self.portal.kill()
+                print("The game has been won!")
+
+                self.portal.kill()
 
         # Mob hits player
 

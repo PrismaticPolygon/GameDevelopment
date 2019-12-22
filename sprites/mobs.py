@@ -1,5 +1,5 @@
 import pygame as pg
-from random import random, choice
+from random import random, choice, randint
 from sprites.player import collide_with_walls
 from settings import GREEN, RED, YELLOW, SOUND_PATH
 from os import path
@@ -55,7 +55,7 @@ class Zombie(pg.sprite.Sprite):
         self.position = vec(x, y)
         self.velocity = vec(0, 0)
         self.acceleration = vec(0, 0)
-        self.rotation = 0
+        self.rotation = randint(0, 360)
         self.target = game.player
 
         self.health = self.HEALTH
@@ -128,7 +128,13 @@ class Zombie(pg.sprite.Sprite):
 
             self.avoid_mobs()
 
-            self.acceleration.scale_to_length(self.speed)
+            try:
+
+                self.acceleration.scale_to_length(self.speed)
+
+            except ValueError:
+
+                pass
 
             self.acceleration += self.velocity * -1
 

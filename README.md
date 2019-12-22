@@ -20,6 +20,8 @@ Three sprints
     * Implement portal destruction.
     * Improve weapon pick-up.
     
+I think I'll switch to mouse-based pointing / aiming.     
+    
 2. Maximise marks
      * Switch to mouse pointing / aiming
      * Add a field of view

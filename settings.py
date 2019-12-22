@@ -51,3 +51,4 @@ BG_MUSIC = "assets/music/espionage.ogg"
 LEVEL_START = "assets/sounds/level_start.wav"
 
 NUMBER_OF_QBITS = 1
+MAX_MOBS = 50
