@@ -1,6 +1,11 @@
 import pygame as pg
 from settings import GREEN, YELLOW, WHITE, RED
 
+fonts = {
+    "title": "assets/fonts/ZOMBIE.TTF",
+    "hud": "assets/fonts/Impacted2.0.TTF"
+}
+
 def draw_player_health(surf, x, y, pct):
 
     if pct < 0:
@@ -32,7 +37,7 @@ def draw_player_health(surf, x, y, pct):
 
 def draw_text(screen, text, font_name, size, color, x, y, align="nw"):
 
-    font = pg.font.Font(font_name, size)
+    font = pg.font.Font(fonts[font_name], size)
 
     text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect()

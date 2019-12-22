@@ -1,5 +1,5 @@
 import pygame as pg
-from settings import PLAYER_LAYER, MAX_MOBS
+from settings import PLAYER_LAYER, MAX_MOBS, DIFFICULTY
 from sprites import Zombie
 import random
 import math
@@ -20,17 +20,17 @@ class Portal(pg.sprite.Sprite):
 
         # Portal constants
 
-        self.ROTATION_SPEED = 100
+        self.ROTATION_SPEED = 100 * DIFFICULTY
         self.position = vec(x, y)
         self.rotation = 0
         self.HIT_RECT = pg.Rect(0, 0, 128, 128)
-        self.SPAWN_RATE = 5000
+        self.SPAWN_RATE = 5000 / DIFFICULTY
         self.RADIUS = 128
         self.SIZE = 128
 
         # Portal variables
 
-        self.rotation_speed = 8
+        self.rotation_speed = 8 * DIFFICULTY
         self.last_spawned = 0
 
         # Image variables

@@ -56,8 +56,6 @@ class Bullet(pg.sprite.Sprite):
 
 class Firearm(pg.sprite.Sprite):
 
-    # Maybe this... overwrites them? Oh right. In a manner of speaking, yes!
-
     def __init__(self, game, x, y, rotation):
 
         # Game variables
@@ -151,8 +149,6 @@ class Firearm(pg.sprite.Sprite):
 
                 spread = uniform(-self.SPREAD, self.SPREAD)
                 velocity = direction.rotate(spread) * self.SPEED
-
-                print(velocity)
 
                 Bullet(self.game, self.position, velocity, self.DAMAGE)
 

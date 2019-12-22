@@ -17,16 +17,13 @@ Three sprints
     * Create an 'outside' Science Site map.
     * Implement level traversal.
     * Implement an item inventory.
-    * Implement portal destruction.
-    * Improve weapon pick-up.
-    
-I think I'll switch to mouse-based pointing / aiming.     
+    * Improve weapon pick-up.    
     
 2. Maximise marks
-     * Switch to mouse pointing / aiming
-     * Add a field of view
-     * Improve zombie pathfinding ([tutorial](https://www.youtube.com/watch?v=e3gbNOl4DiM))
-     * Add zombie states (chasing, roaming)
+    * Switch to mouse pointing / aiming
+    * Add a field of view
+    * Improve zombie pathfinding ([tutorial](https://www.youtube.com/watch?v=e3gbNOl4DiM))
+    * Add zombie states (chasing, roaming)
      
 3. Nice-to-haves
     * Melee attacks ([tutorial](https://www.youtube.com/watch?v=AaJopFFkmNo))

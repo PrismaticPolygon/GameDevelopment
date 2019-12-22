@@ -52,3 +52,4 @@ LEVEL_START = "assets/sounds/level_start.wav"
 
 NUMBER_OF_QBITS = 0
 MAX_MOBS = 50
+DIFFICULTY = 1

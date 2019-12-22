@@ -1,7 +1,7 @@
 import pygame as pg
 from random import random, choice, randint
 from sprites.player import collide_with_walls
-from settings import GREEN, RED, YELLOW, SOUND_PATH
+from settings import GREEN, RED, YELLOW, SOUND_PATH, DIFFICULTY
 from os import path
 
 vec = pg.math.Vector2
@@ -20,13 +20,13 @@ class Zombie(pg.sprite.Sprite):
 
         # Sprite constants
 
-        self.HEALTH = 20
-        self.SPEEDS = [150, 100, 75, 125]
+        self.HEALTH = 20 * DIFFICULTY
+        self.SPEEDS = [150, 100, 75, 125] * DIFFICULTY
         self.HIT_RECT = pg.Rect(0, 0, 30, 30)
-        self.DAMAGE = 10
-        self.KNOCKBACK = 20
+        self.DAMAGE = 10 * DIFFICULTY
+        self.KNOCKBACK = 20 * DIFFICULTY
         self.AVOID_RADIUS = 50
-        self.DETECT_RADIUS = 400
+        self.DETECT_RADIUS = 400 * DIFFICULTY
 
         self.SOUNDS = [pg.mixer.Sound(path.join(SOUND_PATH, file)) for file in [
             "brains_1.wav",

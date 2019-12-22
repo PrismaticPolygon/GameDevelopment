@@ -4,6 +4,79 @@ from settings import *
 from tilemap import Camera, TiledMap
 from sprites import *
 from hud import draw_player_health, draw_text
+import pygameMenu
+# from menu import *
+
+def menu_background():
+
+    pass
+
+# DIFFICULTY = 1
+
+def change_difficulty(value):
+
+    difficulty, _ = value
+
+    if difficulty == "Easy":
+
+        DIFFICULTY = 0.75
+
+    elif difficulty == "Normal":
+
+        DIFFICULTY = 1
+
+    elif difficulty == "Hard":
+
+        DIFFICULTY = 1.25
+
+
+def create_menu(surface):
+
+    settings = pygameMenu.Menu(surface,
+                               dopause=True,
+                               bgfun=menu_background,
+                               font=pygameMenu.font.FONT_NEVIS,
+                               menu_alpha=85,
+                               menu_color=LIGHTGREY,  # Background color
+                               menu_width=600,
+                               onclose=pygameMenu.events.BACK,  # If this menu closes (ESC) back to main
+                               option_shadow=True,
+                               rect_width=4,
+                               title='Settings',
+                               title_offsety=5,  # Adds 5px to title vertical position
+                               window_height=HEIGHT,
+                               window_width=WIDTH)
+
+    settings.add_selector('Difficulty',
+                          [("Easy",), ("Normal",), ("Hard",)],
+                          default=1,
+                          onchange=change_difficulty,
+                          onreturn=change_difficulty)
+
+    settings.add_option('Return to Menu', pygameMenu.events.BACK)
+
+    # Main menu, pauses execution of the application
+    menu = pygameMenu.Menu(surface,
+                           dopause=True,
+                           bgfun=menu_background,
+                           enabled=False,
+                           menu_color=LIGHTGREY,  # Background color
+                           font=pygameMenu.font.FONT_NEVIS,
+                           menu_alpha=85,
+                           fps=FPS,
+                           onclose=pygameMenu.events.CLOSE,
+                           title='Main Menu',
+                           title_offsety=5,
+                           window_height=HEIGHT,
+                           window_width=WIDTH
+                           )
+
+    menu.add_option(settings.get_title(), settings)
+    menu.add_option("Close", pygameMenu.events.CLOSE)
+    menu.add_option('Exit', pygameMenu.events.EXIT)  # Add exit function
+
+    return menu
+
 
 class Game:
 
@@ -21,11 +94,6 @@ class Game:
 
         pg.key.set_repeat(500, 100)
 
-        # Unique objects
-        # Okay. Why is it in the bottom right?
-        # Ideally, it would render in the centre. Solution: make every map at least the size that we expect.
-        # But now movement isn't working...
-
         self.player = None
         self.portal = None
         self.NUMBER_OF_QBITS = 0
@@ -34,12 +102,13 @@ class Game:
 
         self.night = True
         self.paused = False
+        self.playing = True
+        self.dt = 0
+        self.last_dt = 1
 
+        self.menu = create_menu(self.screen)
 
     def load_data(self):
-
-        self.title_font = "assets/fonts/ZOMBIE.TTF"
-        self.hud_font = "assets/fonts/Impacted2.0.TTF"
 
         self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
         self.dim_screen.fill((0, 0, 0, 180))
@@ -111,27 +180,55 @@ class Game:
                 self.portal = Portal(self, center.x, center.y)
 
         self.camera = Camera(self.map.width, self.map.height)
-        self.draw_debug = False
 
         # self.effect_sounds["level_start"].play()
 
     def run(self):
 
-        # game loop - set self.playing = False to end the game
-
-        self.playing = True
-
-        # pg.mixer.music.play(loops=-1)
+        # pg.mixer.music.play(loops=-1) # Play background music on a loop
 
         while self.playing:
 
-            self.dt = self.clock.tick(FPS) / 1000
+            self.dt = min(self.clock.tick(FPS) / 1000, self.last_dt)   # To prevent the massive dt on menu pause
 
-            self.events()
+            events = pg.event.get()
 
-            if not self.paused:
+            for event in events:
 
-                self.update()
+                if event.type == pg.QUIT:
+
+                    self.quit()
+
+                if event.type == pg.KEYDOWN:
+
+                    if event.key == pg.K_ESCAPE:
+
+                        self.menu.enable()
+
+                        self.last_dt = self.dt
+
+                    if event.key == pg.K_n:
+
+                        self.night = not self.night
+
+                    if event.key == pg.K_r:
+
+                        self.player.reload()
+
+                    if event.key == pg.K_SPACE:
+
+                        self.player.fire()
+
+                if event.type == pg.KEYUP and event.key == pg.K_SPACE:
+
+                    self.player.stop_firing()
+
+            self.menu.mainloop(events)  # If self.dt is ridiculous... i.e. not within a certain range of the normal
+            # Then we can disregard it. But then we might disregard some frames that we're shouldn't
+
+            # So we should somehow cap this. Or estimate it?
+
+            self.update()
 
             self.draw()
 
@@ -222,8 +319,6 @@ class Game:
 
         self.screen.blit(self.fog, (0, 0), special_flags=pg.BLEND_MULT)
 
-    # Of course, it's more of a structure than a item, but hey ho. We'll just scale it to be massive.
-
     def draw(self):
 
         pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
@@ -245,52 +340,17 @@ class Game:
         # HUD
 
         draw_player_health(self.screen, 10, 10, self.player.health / 100)
-        draw_text(self.screen, 'Zombies: {}'.format(len(self.mobs)), self.hud_font, 30, WHITE, WIDTH - 10, 10, align="ne")
+        draw_text(self.screen, 'Zombies: {}'.format(len(self.mobs)), "hud", 30, WHITE, WIDTH - 10, 10, align="ne")
 
         draw_text(self.screen, 'Q-bits: {} / {}'.format(self.player.qbit_count, self.NUMBER_OF_QBITS),
-                  self.hud_font, 30, WHITE, WIDTH - 200, 10, align="ne")
+                  "hud", 30, WHITE, WIDTH - 200, 10, align="ne")
 
         if self.paused:
 
             self.screen.blit(self.dim_screen, (0, 0))
-            draw_text(self.screen, "Paused", self.title_font, 105, RED, WIDTH / 2, HEIGHT / 2, align="center")
+            draw_text(self.screen, "Paused", "title", 105, RED, WIDTH / 2, HEIGHT / 2, align="center")
 
         pg.display.flip()
-
-    def events(self):
-
-        # catch all events here
-        for event in pg.event.get():
-
-            if event.type == pg.QUIT:
-
-                self.quit()
-
-            if event.type == pg.KEYDOWN:
-
-                if event.key == pg.K_ESCAPE:
-
-                    self.quit()
-
-                if event.key == pg.K_p:
-
-                    self.paused = not self.paused
-
-                if event.key == pg.K_n:
-
-                    self.night = not self.night
-
-                if event.key == pg.K_r:
-
-                    self.player.reload()
-
-                if event.key == pg.K_SPACE:
-
-                    self.player.fire()
-
-            if event.type == pg.KEYUP and event.key == pg.K_SPACE:
-
-                self.player.stop_firing()
 
     def show_start_screen(self):
 
@@ -299,8 +359,8 @@ class Game:
     def show_go_screen(self):
 
         self.screen.fill(BLACK)
-        draw_text(self.screen, "GAME OVER", self.title_font, 100, RED, WIDTH / 2, HEIGHT / 2, align="center")
-        draw_text(self.screen, "Press a key to start", self.title_font, 75, WHITE, WIDTH / 2, HEIGHT * 3 / 4, align="center")
+        draw_text(self.screen, "GAME OVER", "title", 100, RED, WIDTH / 2, HEIGHT / 2, align="center")
+        draw_text(self.screen, "Press a key to start", "title", 75, WHITE, WIDTH / 2, HEIGHT * 3 / 4, align="center")
 
         pg.display.flip()
 
