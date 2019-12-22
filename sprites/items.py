@@ -75,6 +75,17 @@ class ShotgunItem(Item):
 
         # self.image = pg.transform.scale(self.image, (32, 32))
 
+class PistolItem(Item):
+
+    def __init__(self, game, position):
+
+        Item.__init__(self, game, position)
+
+        self.image = pg.image.load("assets/images/pistol.png").convert_alpha()
+        self.pickup_sound = pg.mixer.Sound("assets/sounds/gun_pickup.wav")
+
+        # self.image = pg.transform.scale(self.image, (32, 32))
+
 class QBitItem(Item):
 
     def __init__(self, game, position):

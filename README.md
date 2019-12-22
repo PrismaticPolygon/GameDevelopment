@@ -16,7 +16,6 @@ Three sprints
     * Create a ground-floor Engineering map.
     * Create an 'outside' Science Site map.
     * Implement level traversal.
-    * Implement an item inventory.
     * Improve weapon pick-up.    
     
 2. Maximise marks
@@ -36,7 +35,6 @@ Three sprints
     * More particle effects (fire, smoke)
     * More weapons (sniper rifle, rocket launcher)
     * Items (ammunition, armour)
-    * Start menu
 
 ## Marks
 

@@ -1,4 +1,5 @@
 from sprites.weapons import Pistol, WeaponMode, Shotgun
+from sprites.items import ShotgunItem, PistolItem
 from itertools import chain
 from random import random, choice
 import math
@@ -105,6 +106,37 @@ class Player(pg.sprite.Sprite):
         """
 
         self.is_firing = False
+
+    def drop_weapon(self):
+
+        if isinstance(self.weapon, Shotgun):
+
+            ShotgunItem(self.game, vec(self.position))  # To stop the items moving with the player
+
+        if isinstance(self.weapon, Pistol):
+
+            PistolItem(self.game, vec(self.position))
+
+    def equip_weapon(self):
+
+        # So we're left with a stray sprite.
+        # Good. But we're not deleting the images of the previous things.
+
+        items = pg.sprite.spritecollide(self, self.game.items, False)
+
+        for item in items:
+
+            self.drop_weapon()
+
+            if isinstance(item, ShotgunItem):
+
+                self.weapon = Shotgun(self.game, self.position.x, self.position.y, self.rotation)
+
+            if isinstance(item, PistolItem):
+
+                self.weapon = Pistol(self.game, self.position.x, self.position.y, self.rotation)
+
+            item.pickup()
 
     def get_keys(self):
 

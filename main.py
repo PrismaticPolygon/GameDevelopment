@@ -1,6 +1,7 @@
 import sys
 import pygame as pg
 from settings import *
+import textwrap
 from tilemap import Camera, TiledMap
 from sprites import *
 from hud import draw_player_health, draw_text
@@ -39,11 +40,10 @@ def create_menu(surface):
                                menu_alpha=85,
                                menu_color=LIGHTGREY,  # Background color
                                menu_width=600,
-                               onclose=pygameMenu.events.BACK,  # If this menu closes (ESC) back to main
+                               # onclose=pygameMenu.events.BACK,  # If this menu closes (ESC) back to main
                                option_shadow=True,
                                rect_width=4,
                                title='Settings',
-                               title_offsety=5,  # Adds 5px to title vertical position
                                window_height=HEIGHT,
                                window_width=WIDTH)
 
@@ -53,26 +53,48 @@ def create_menu(surface):
                           onchange=change_difficulty,
                           onreturn=change_difficulty)
 
-    settings.add_option('Return to Menu', pygameMenu.events.BACK)
+    controls = pygameMenu.TextMenu(surface,
+                                    dopause=True,
+                                    bgfun=menu_background,
+                                    font=pygameMenu.font.FONT_NEVIS,
+                                    menu_color=LIGHTGREY,
+                                    menu_alpha=85,
+                                    onclose=pygameMenu.events.BACK,
+                                    text_align=pygameMenu.locals.ALIGN_CENTER,
+                                    title='Controls',
+                                    window_height=HEIGHT,
+                                    window_width=WIDTH)
+
+    help = [
+        "Use WASD or the arrow keys to move",
+        "Use SPACE to shoot",
+        "Use R to reload",
+        "Use E to equip weapons",
+    ]
+
+    for line in help:
+
+        controls.add_line(line)
 
     # Main menu, pauses execution of the application
     menu = pygameMenu.Menu(surface,
                            dopause=True,
                            bgfun=menu_background,
-                           enabled=False,
+                           enabled=True,
                            menu_color=LIGHTGREY,  # Background color
                            font=pygameMenu.font.FONT_NEVIS,
                            menu_alpha=85,
                            fps=FPS,
                            onclose=pygameMenu.events.CLOSE,
-                           title='Main Menu',
+                           title='Zombitch!',
                            title_offsety=5,
                            window_height=HEIGHT,
-                           window_width=WIDTH
-                           )
+                           window_width=WIDTH)
 
+    menu.add_option("Play", pygameMenu.events.CLOSE)
+
+    menu.add_option(controls.get_title(), controls)
     menu.add_option(settings.get_title(), settings)
-    menu.add_option("Close", pygameMenu.events.CLOSE)
     menu.add_option('Exit', pygameMenu.events.EXIT)  # Add exit function
 
     return menu
@@ -105,6 +127,8 @@ class Game:
         self.playing = True
         self.dt = 0
         self.last_dt = 1
+
+        self.can_equip = False
 
         self.menu = create_menu(self.screen)
 
@@ -219,18 +243,21 @@ class Game:
 
                         self.player.fire()
 
-                if event.type == pg.KEYUP and event.key == pg.K_SPACE:
+                if event.type == pg.KEYUP:
 
-                    self.player.stop_firing()
+                    if event.key == pg.K_SPACE:
 
-            self.menu.mainloop(events)  # If self.dt is ridiculous... i.e. not within a certain range of the normal
-            # Then we can disregard it. But then we might disregard some frames that we're shouldn't
+                        self.player.stop_firing()
 
-            # So we should somehow cap this. Or estimate it?
+                    if event.key == pg.K_e:
 
-            self.update()
+                        self.player.equip_weapon()
+
+            self.menu.mainloop(events)
 
             self.draw()
+
+            self.update()
 
     def quit(self):
 
@@ -243,8 +270,6 @@ class Game:
 
         self.camera.update(self.player)
 
-        # Player hits items
-
         items = pg.sprite.spritecollide(self.player, self.items, False)
 
         for item in items:
@@ -253,17 +278,13 @@ class Game:
 
                 self.player.add_health(item.AMOUNT)
 
-            keys = pg.key.get_pressed()
+                item.pickup()
 
-            if isinstance(item, ShotgunItem):
-
-                self.player.weapon = Shotgun(self, self.player.position.x, self.player.position.y, self.player.rotation)
-
-            if isinstance(item, QBitItem):
+            elif isinstance(item, QBitItem):
 
                 self.player.qbit_count += 1
 
-            item.pickup()
+                item.pickup()
 
         # Player hits portal
 
@@ -342,6 +363,10 @@ class Game:
         draw_player_health(self.screen, 10, 10, self.player.health / 100)
         draw_text(self.screen, 'Zombies: {}'.format(len(self.mobs)), "hud", 30, WHITE, WIDTH - 10, 10, align="ne")
 
+        # if self.can_equip:
+        #
+        #     draw_text(self.screen, "Press E to equip", "title", 30, WHITE, WIDTH / 2, HEIGHT * 4 / 5, align="center")
+
         draw_text(self.screen, 'Q-bits: {} / {}'.format(self.player.qbit_count, self.NUMBER_OF_QBITS),
                   "hud", 30, WHITE, WIDTH - 200, 10, align="ne")
 
@@ -354,7 +379,13 @@ class Game:
 
     def show_start_screen(self):
 
-        pass
+        while self.menu.is_enabled():
+
+            self.screen.fill(BLACK)
+
+            events = pg.event.get()
+
+            self.menu.mainloop(events)
 
     def show_go_screen(self):
 
