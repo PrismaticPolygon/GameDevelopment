@@ -153,8 +153,12 @@ class Zombie(pg.sprite.Sprite):
 
         if self.health <= 0:
 
-            self.DEATH_SOUND.play()
+            self.kill_image()
 
-            self.game.map_img.blit(self.DEATH_IMAGE, self.position - vec(32, 32))
+    def kill_image(self):
 
-            self.kill()
+        self.DEATH_SOUND.play()
+
+        self.game.map_img.blit(self.DEATH_IMAGE, self.position - vec(32, 32))
+
+        self.kill()

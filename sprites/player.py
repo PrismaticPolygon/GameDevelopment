@@ -1,4 +1,4 @@
-from sprites.weapons import Pistol, WeaponMode, Shotgun
+from sprites.weapons import *
 from sprites.items import ShotgunItem, PistolItem
 from itertools import chain
 from random import random, choice
@@ -8,10 +8,20 @@ from os import path
 from settings import PLAYER_LAYER
 from sprites.obstacle import collide_with_walls
 
+# We should... maybe it could inherit both?
+# I'm not sure. It's silly having to make both, that's for certain.
+
+# It seems there's a strange image I'm not blitting.
+# We also need a "RELOAD" text.
+
 vec = pg.math.Vector2
 
 
 class Player(pg.sprite.Sprite):
+
+    def needs_to_reload(self):
+
+        return self.weapon.capacity == 0 and not self.is_reloading()
 
     def __init__(self, game, x, y):
 
@@ -53,7 +63,7 @@ class Player(pg.sprite.Sprite):
         self.damage_alpha = None
 
         self.health = self.HEALTH
-        self.weapon = Pistol(game, x, y, self.rotation)
+        self.weapon = SniperRifle(game, x, y, self.rotation)
         self.rotation_speed = 0
         self.is_firing = False
         self.damaged = False
@@ -116,6 +126,16 @@ class Player(pg.sprite.Sprite):
         if isinstance(self.weapon, Pistol):
 
             PistolItem(self.game, vec(self.position))
+
+    def is_reloading(self):
+
+        return self.weapon.is_reloading()
+
+    def can_equip_weapon(self):
+
+        items = pg.sprite.spritecollide(self, self.game.items, False)
+
+        return len(items) > 0
 
     def equip_weapon(self):
 

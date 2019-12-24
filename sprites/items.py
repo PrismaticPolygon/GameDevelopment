@@ -1,10 +1,10 @@
 import pygame as pg
-from settings import ITEMS_LAYER
+from settings import ITEMS_LAYER, aspect_scale
 import pytweening as tween
 
 class Item(pg.sprite.Sprite):
 
-    def __init__(self, game, position):
+    def __init__(self, game, position, image, sound):
 
         # Game variables
 
@@ -22,13 +22,16 @@ class Item(pg.sprite.Sprite):
 
         self.step = 0
         self.dir = 1
-        self.pickup_sound = pg.mixer.Sound("assets/sounds/health_pack.wav")
+        self.pickup_sound = pg.mixer.Sound("assets/sounds/" + sound)
 
         self.position = position
 
         # Image variables
 
-        self.image = pg.image.load("assets/images/medkit.png").convert_alpha()
+        self.image = pg.image.load("assets/images/" + image).convert_alpha()
+        self.image = aspect_scale(self.image, 32, 32)
+
+
         self.rect = self.image.get_rect()
         self.rect.center = position
 
@@ -55,44 +58,24 @@ class MedkitItem(Item):
 
     def __init__(self, game, position):
 
-        Item.__init__(self, game, position)
+        Item.__init__(self, game, position, "medkit.png", "health_pack.wav")
 
         self.AMOUNT = 20
-
-        self.image = pg.image.load("assets/images/medkit.png").convert_alpha()
-        self.pickup_sound = pg.mixer.Sound("assets/sounds/health_pack.wav")
-
-        self.image = pg.transform.scale(self.image, (32, 32))
 
 class ShotgunItem(Item):
 
     def __init__(self, game, position):
 
-        Item.__init__(self, game, position)
-
-        self.image = pg.image.load("assets/images/shotgun.png").convert_alpha()
-        self.pickup_sound = pg.mixer.Sound("assets/sounds/gun_pickup.wav")
-
-        # self.image = pg.transform.scale(self.image, (32, 32))
+        Item.__init__(self, game, position, "shotgun.png", "gun_pickup.wav")
 
 class PistolItem(Item):
 
     def __init__(self, game, position):
 
-        Item.__init__(self, game, position)
-
-        self.image = pg.image.load("assets/images/pistol.png").convert_alpha()
-        self.pickup_sound = pg.mixer.Sound("assets/sounds/gun_pickup.wav")
-
-        # self.image = pg.transform.scale(self.image, (32, 32))
+        Item.__init__(self, game, position, "pistol.png", "gun_pickup.wav")
 
 class QBitItem(Item):
 
     def __init__(self, game, position):
 
-        Item.__init__(self, game, position)
-
-        self.image = pg.image.load("assets/images/qbit.png").convert_alpha()
-        self.pickup_sound = pg.mixer.Sound("assets/sounds/gun_pickup.wav")
-
-        self.image = pg.transform.scale(self.image, (32, 32))
+        Item.__init__(self, game, position, "qbit.png", "gun_pickup.wav")

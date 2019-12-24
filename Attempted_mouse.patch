@@ -1,0 +1,408 @@
+Index: sprites/player.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- sprites/player.py	(date 1577031997000)
++++ sprites/player.py	(revision )
+@@ -79,34 +79,6 @@
+ 
+         self.damage_alpha = chain(self.DAMAGE_ALPHA * 3)
+ 
+-    def fire(self):
+-        """
+-        Called on the K_SPACE KEYDOWN event. If the weapon is semi-automatic, fire once. If it is automatic, set the
+-        is_firing flag to True. When this is True, the player fires a new projectile when update is called.
+-        :return:
+-        """
+-
+-        # Also, do stuff with kickback here
+-
+-        if self.weapon.MODE == WeaponMode.SEMI_AUTOMATIC:
+-
+-            self.weapon.fire()
+-
+-            self.velocity = vec(self.weapon.KICKBACK, 0).rotate(-self.rotation)
+-
+-        else:
+-
+-            self.is_firing = True
+-
+-    def stop_firing(self):
+-        """
+-        Called on the K_SPACE KEYUP event. Sets the is_firing flag to False, which stops the player firing new
+-        projectiles when update is called.
+-        :return:
+-        """
+-
+-        self.is_firing = False
+-
+     def drop_weapon(self):
+ 
+         if isinstance(self.weapon, Shotgun):
+@@ -119,9 +91,6 @@
+ 
+     def equip_weapon(self):
+ 
+-        # So we're left with a stray sprite.
+-        # Good. But we're not deleting the images of the previous things.
+-
+         items = pg.sprite.spritecollide(self, self.game.items, False)
+ 
+         for item in items:
+@@ -138,36 +107,7 @@
+ 
+             item.pickup()
+ 
+-    def get_keys(self):
+-
+-        # Keydown gives keys which are pressed down on that frame.
+-
+-        self.velocity = vec(0, 0)
+-        self.rotation_speed = 0
+-
+-        keys = pg.key.get_pressed()
+-
+-        if keys[pg.K_LEFT] or keys[pg.K_a]:
+-
+-            self.rotation_speed = self.ROTATION_SPEED
+-
+-        if keys[pg.K_RIGHT] or keys[pg.K_d]:
+-
+-            self.rotation_speed = -self.ROTATION_SPEED
+-
+-        if keys[pg.K_UP] or keys[pg.K_w]:
+-
+-            self.velocity = vec(self.SPEED, 0).rotate(-self.rotation)
+-
+-        if keys[pg.K_DOWN] or keys[pg.K_s]:
+-
+-            self.velocity = vec(-self.SPEED / 2, 0).rotate(-self.rotation)
+-
+-    def reload(self):
+-
+-        self.weapon.reload()
+-
+-    def add_health(self, amount):
++    def heal(self, amount):
+ 
+         self.health += amount
+ 
+@@ -175,29 +115,116 @@
+ 
+             self.health = self.HEALTH
+ 
+-    def update(self):
++    # I'm not calling draw!
+ 
+-        self.get_keys()
++    # def update(self):
++    #
++    #     self.rotate()
++    #
++    #     self.get_keys()
++    #
++    #     # Nice. It does seem to work.
+ 
+-        self.rotation = (self.rotation + self.rotation_speed * self.game.dt) % 360
++    #     #
++    #     # self.image = pg.transform.rotate(self.original_image, self.rotation)
++    #
++    #     if self.damaged:
++    #
++    #         try:
++    #
++    #             self.image.fill((255, 0, 0, next(self.damage_alpha)), special_flags=pg.BLEND_RGBA_MULT)
++    #
++    #         except StopIteration:
++    #
++    #             self.damaged = False
++    #
++    #     self.rect = self.image.get_rect()
++    #     self.rect.center = self.position
++    #
++    #     self.position += self.velocity * self.game.dt
++    #
++    #     self.hit_rect.centerx = self.position.x
++    #
++    #     collide_with_walls(self, self.game.walls, 'sprites')
++    #
++    #     self.hit_rect.centery = self.position.y
++    #
++    #     collide_with_walls(self, self.game.walls, 'y')
++    #
++    #     self.rect.center = self.hit_rect.center
++    #
++    #     # Update weapon
++    #
++    #     self.weapon.rotation = self.rotation
++    #     self.weapon.position = self.position + self.BARREL_OFFSET.rotate(-self.rotation)
++    #
++    #     if self.is_firing:
++    #
++    #         self.weapon.fire()
+ 
+-        self.image = pg.transform.rotate(self.original_image, self.rotation)
++    def update_event(self, event):
+ 
+-        if self.damaged:
++        if event.type == pg.MOUSEBUTTONDOWN:
+ 
+-            try:
++            if self.weapon.MODE == WeaponMode.SEMI_AUTOMATIC:
+ 
+-                self.image.fill((255, 0, 0, next(self.damage_alpha)), special_flags=pg.BLEND_RGBA_MULT)
++                self.weapon.fire()
+ 
+-            except StopIteration:
++            else:
+ 
+-                self.damaged = False
++                self.is_firing = True
+ 
+-        self.rect = self.image.get_rect()
+-        self.rect.center = self.position
++        if event.type == pg.MOUSEBUTTONUP:
++
++            self.is_firing = False
++
++        if event.type == pg.MOUSEMOTION:
++
++            self.rotate()
++
++        if event.type == pg.KEYDOWN:
++
++            if event.key == pg.K_UP or event.key ==  pg.K_w:    # Move forwards
++
++                self.velocity = vec(self.SPEED, 0).rotate(-self.rotation)
++
++            if event.key == pg.K_DOWN or event.key ==  pg.K_s:  # Move backwards
++
++                self.velocity = vec(-self.SPEED / 2, 0).rotate(-self.rotation)
++
++            if event.key == pg.K_r: # Reload
++
++                self.weapon.reload()
++
++        if event.type == pg.KEYUP:
++
++            if event.key == pg.K_e: # Equip a weapon
++
++                self.equip_weapon()
++
++            if event.key in [pg.K_UP, pg.K_w, pg.K_DOWN, pg.K_s]:   # Stop moving
++
++                self.velocity = vec(0, 0)
++
++        # Update player location
+ 
+         self.position += self.velocity * self.game.dt
+ 
++        # Update weapon
++
++        self.weapon.rotation = self.rotation
++        self.weapon.position = self.position + self.BARREL_OFFSET.rotate(-self.rotation)
++
++        if self.is_firing:
++
++            self.weapon.fire()
++
++    def draw(self):
++
++        self.image = pg.transform.rotate(self.original_image, self.rotation)
++
++        self.rect = self.image.get_rect(center=self.position)
++
+         self.hit_rect.centerx = self.position.x
+ 
+         collide_with_walls(self, self.game.walls, 'sprites')
+@@ -213,24 +240,24 @@
+         self.weapon.rotation = self.rotation
+         self.weapon.position = self.position + self.BARREL_OFFSET.rotate(-self.rotation)
+ 
+-        if self.is_firing:
+ 
+-            self.weapon.fire()
+ 
+-            self.velocity = vec(self.weapon.KICKBACK, 0).rotate(-self.rotation)
+ 
+-    # https://stackoverflow.com/questions/44960680/how-to-make-a-sprite-rotate-to-face-the-mouse
+ 
+-    # def rotate(self):
+-    #
+-    #     mouse_position = pg.mouse.get_pos()
+-    #
+-    #     # Calculate the vector to the mouse position by subtracting
+-    #     # the self.pos vector from the mouse_pos.
+-    #     rel_x, rel_y = mouse_position - self.position
+-    #     # Use math.atan2 to get the angle in radians and convert it to degrees.
+-    #     angle = -math.degrees(math.atan2(rel_y, rel_x))
+-    #     # Rotate the image.
+-    #     self.image = pg.transform.rotozoom(self.original_image, angle, 1)
+-    #     # Update the rect and keep the center at the old position.
+-    #     self.rect = self.image.get_rect(center=self.rect.center)
++
++    def rotate(self):
++
++        # https://gamedev.stackexchange.com/questions/132163/how-can-i-make-the-player-look-to-the-mouse-direction-pygame-2d
++
++        mouse_x, mouse_y = pg.mouse.get_pos()
++        rel_x, rel_y = mouse_x - self.position.x, mouse_y - self.position.y
++
++        angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
++
++        self.image = pg.transform.rotate(self.original_image, int(angle))
++
++        self.rotation = int(angle)
++
++        self.rect = self.image.get_rect(center=self.position)
++
++
+Index: sprites/mobs.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- sprites/mobs.py	(date 1577031997000)
++++ sprites/mobs.py	(revision )
+@@ -157,4 +157,6 @@
+ 
+             self.game.map_img.blit(self.DEATH_IMAGE, self.position - vec(32, 32))
+ 
+-            self.kill()
+\ No newline at end of file
++            self.kill()
++
++    # Pathfinding time. I hope that it isn't too complex.
+\ No newline at end of file
+Index: README.md
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- README.md	(date 1577031997000)
++++ README.md	(revision )
+@@ -16,7 +16,6 @@
+     * Create a ground-floor Engineering map.
+     * Create an 'outside' Science Site map.
+     * Implement level traversal.
+-    * Improve weapon pick-up.    
+     
+ 2. Maximise marks
+     * Switch to mouse pointing / aiming
+@@ -29,7 +28,6 @@
+     * Weapon accuracy decreases with movement
+     * Add animations
+     * Add physics-based weapons (e.g. a grenade)
+-    * Add scaling difficulty
+     * Destructible obstacles (doors / windows)
+     * Floating combat text
+     * More particle effects (fire, smoke)
+Index: main.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- main.py	(date 1577031997000)
++++ main.py	(revision )
+@@ -67,7 +67,7 @@
+ 
+     help = [
+         "Use WASD or the arrow keys to move",
+-        "Use SPACE to shoot",
++        "Use LCLICK to shoot",
+         "Use R to reload",
+         "Use E to equip weapons",
+     ]
+@@ -114,7 +114,7 @@
+ 
+         self.clock = pg.time.Clock()
+ 
+-        pg.key.set_repeat(500, 100)
++        # pg.key.set_repeat(500, 100)
+ 
+         self.player = None
+         self.portal = None
+@@ -211,6 +211,9 @@
+ 
+         # pg.mixer.music.play(loops=-1) # Play background music on a loop
+ 
++        # For every object, have an 'event'. Seems game.
++        # Otherwise queue is just a list of game objects that should respond to I/O.
++
+         while self.playing:
+ 
+             self.dt = min(self.clock.tick(FPS) / 1000, self.last_dt)   # To prevent the massive dt on menu pause
+@@ -219,6 +222,9 @@
+ 
+             for event in events:
+ 
++                print(event)
++                # WHY is it blocking? Ir only fires once.
++
+                 if event.type == pg.QUIT:
+ 
+                     self.quit()
+@@ -235,29 +241,15 @@
+ 
+                         self.night = not self.night
+ 
+-                    if event.key == pg.K_r:
++                # self.player.update_event(event)
+ 
+-                        self.player.reload()
+-
+-                    if event.key == pg.K_SPACE:
+-
+-                        self.player.fire()
+-
+-                if event.type == pg.KEYUP:
+-
+-                    if event.key == pg.K_SPACE:
+-
+-                        self.player.stop_firing()
+-
+-                    if event.key == pg.K_e:
+-
+-                        self.player.equip_weapon()
++                # Perhaps it's a laptop thing?
+ 
+             self.menu.mainloop(events)
+ 
+             self.draw()
+ 
+-            self.update()
++            # self.update()
+ 
+     def quit(self):
+ 
+@@ -266,7 +258,10 @@
+ 
+     def update(self):
+ 
+-        self.all_sprites.update()
++        self.mobs.update()
++        self.bullets.update()
++
++        # self.all_sprites.update()
+ 
+         self.camera.update(self.player)
+ 
+@@ -276,7 +271,7 @@
+ 
+             if isinstance(item, MedkitItem) and self.player.health < 100:
+ 
+-                self.player.add_health(item.AMOUNT)
++                self.player.heal(item.AMOUNT)
+ 
+                 item.pickup()
+ 
+@@ -354,6 +349,8 @@
+ 
+             self.screen.blit(sprite.image, self.camera.apply(sprite))
+ 
++        self.player.draw()
++
+         if self.night:
+ 
+             self.render_fog()

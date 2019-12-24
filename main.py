@@ -128,6 +128,8 @@ class Game:
         self.dt = 0
         self.last_dt = 1
 
+        self.victory = False
+
         self.can_equip = False
 
         self.menu = create_menu(self.screen)
@@ -294,7 +296,17 @@ class Game:
 
                 self.portal.kill()
 
-                self.playing = False
+                # Then, after 5 seconds, set playing to false.
+
+                for mob in self.mobs:
+
+                    mob.kill()
+
+
+
+                # self.playing = False
+                #
+                # self.victory = True
 
         # Mob hits player
 
@@ -324,7 +336,7 @@ class Game:
 
             for bullet in hits[mob]:
 
-                mob.health -= bullet.damage
+                mob.health -= bullet.DAMAGE
 
             mob.vel = vec(0, 0)
 
@@ -346,6 +358,8 @@ class Game:
 
         self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
 
+        # Hm. It seems there is a Pistol lying around...
+
         for sprite in self.all_sprites:
 
             if isinstance(sprite, Zombie):
@@ -363,9 +377,17 @@ class Game:
         draw_player_health(self.screen, 10, 10, self.player.health / 100)
         draw_text(self.screen, 'Zombies: {}'.format(len(self.mobs)), "hud", 30, WHITE, WIDTH - 10, 10, align="ne")
 
-        # if self.can_equip:
-        #
-        #     draw_text(self.screen, "Press E to equip", "title", 30, WHITE, WIDTH / 2, HEIGHT * 4 / 5, align="center")
+        if self.player.can_equip_weapon():
+
+            draw_text(self.screen, "Press E to equip", "hud", 30, WHITE, WIDTH / 2, HEIGHT * 4 / 5, align="center")
+
+        if self.player.needs_to_reload():
+
+            draw_text(self.screen, "Press R to reload", "hud", 30, WHITE, WIDTH / 2, HEIGHT * 4 / 5, align="center")
+
+        if self.player.is_reloading():
+
+            draw_text(self.screen, "Reloading...", "hud", 30, WHITE, WIDTH / 2, HEIGHT * 4 / 5, align="center")
 
         draw_text(self.screen, 'Q-bits: {} / {}'.format(self.player.qbit_count, self.NUMBER_OF_QBITS),
                   "hud", 30, WHITE, WIDTH - 200, 10, align="ne")
@@ -386,6 +408,16 @@ class Game:
             events = pg.event.get()
 
             self.menu.mainloop(events)
+
+    def show_win_screen(self):
+
+        self.screen.fill(BLACK)
+        draw_text(self.screen, "You win!", "title", 100, RED, WIDTH / 2, HEIGHT / 2, align="center")
+        draw_text(self.screen, "Press a key to start", "title", 75, WHITE, WIDTH / 2, HEIGHT * 3 / 4, align="center")
+
+        pg.display.flip()
+
+        self.wait_for_key()
 
     def show_go_screen(self):
 
@@ -426,4 +458,11 @@ while True:
 
     g.new()
     g.run()
-    g.show_go_screen()
+
+    if g.victory:
+
+        g.show_win_screen()
+
+    else:
+
+        g.show_go_screen()
