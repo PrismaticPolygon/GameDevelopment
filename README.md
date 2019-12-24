@@ -16,7 +16,6 @@ Three sprints
     * Create a ground-floor Engineering map.
     * Create an 'outside' Science Site map.
     * Implement level traversal.
-    * Improve weapon pick-up.    
     
 2. Maximise marks
     * Switch to mouse pointing / aiming
@@ -29,11 +28,9 @@ Three sprints
     * Weapon accuracy decreases with movement
     * Add animations
     * Add physics-based weapons (e.g. a grenade)
-    * Add scaling difficulty
     * Destructible obstacles (doors / windows)
     * Floating combat text
     * More particle effects (fire, smoke)
-    * More weapons (sniper rifle, rocket launcher)
     * Items (ammunition, armour)
 
 ## Marks

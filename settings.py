@@ -55,6 +55,8 @@ NUMBER_OF_QBITS = 0
 MAX_MOBS = 50
 DIFFICULTY = 1
 
+MUSIC_ENABLED = False
+
 def aspect_scale(img, bx, by):
 
     """ Scales 'img' to fit into box bx/by.
