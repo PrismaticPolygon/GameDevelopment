@@ -1,18 +1,23 @@
 import pygame as pg
 from random import random, choice, randint
 from sprites.player import collide_with_walls
-from settings import GREEN, RED, YELLOW, SOUND_PATH, DIFFICULTY
+from settings import GREEN, RED, YELLOW, SOUND_PATH, MOB_LAYER
+import settings
 from os import path
 
 vec = pg.math.Vector2
+
+# Weird.
 
 class Zombie(pg.sprite.Sprite):
 
     def __init__(self, game, x, y):
 
+        DIFFICULTY = settings.DIFFICULTY
+
         # Game variables
 
-        # self._layer = MOB_LAYER
+        self._layer = MOB_LAYER
         self.groups = game.all_sprites, game.mobs
         self.game = game
 
@@ -20,8 +25,8 @@ class Zombie(pg.sprite.Sprite):
 
         # Sprite constants
 
-        self.HEALTH = 20 * DIFFICULTY
-        self.SPEEDS = [150, 100, 75, 125] * DIFFICULTY
+        self.HEALTH = 50 * DIFFICULTY
+        self.SPEEDS = [x * DIFFICULTY for x in [150, 100, 75, 125]]
         self.HIT_RECT = pg.Rect(0, 0, 30, 30)
         self.DAMAGE = 10 * DIFFICULTY
         self.KNOCKBACK = 20 * DIFFICULTY

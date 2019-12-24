@@ -1,5 +1,6 @@
 import pygame as pg
-from settings import ITEMS_LAYER, aspect_scale
+from os import path
+from settings import ITEMS_LAYER, aspect_scale, IMAGE_PATH, SOUND_PATH
 import pytweening as tween
 
 class Item(pg.sprite.Sprite):
@@ -22,13 +23,13 @@ class Item(pg.sprite.Sprite):
 
         self.step = 0
         self.dir = 1
-        self.pickup_sound = pg.mixer.Sound("assets/sounds/" + sound)
+        self.pickup_sound = pg.mixer.Sound(path.join(SOUND_PATH, sound))
 
         self.position = position
 
         # Image variables
 
-        self.image = pg.image.load("assets/images/" + image).convert_alpha()
+        self.image = pg.image.load(path.join(IMAGE_PATH, image)).convert_alpha()
         self.image = aspect_scale(self.image, 32, 32)
 
 
@@ -68,17 +69,19 @@ class ShotgunItem(Item):
 
         Item.__init__(self, game, position, "shotgun.png", "gun_pickup.wav")
 
+    def __str__(self):
+
+        return "Shotgun"
+
 class PistolItem(Item):
 
     def __init__(self, game, position):
 
         Item.__init__(self, game, position, "pistol.png", "gun_pickup.wav")
 
-class RocketLauncherItem(Item):
+    def __str__(self):
 
-    def __init__(self, game, position):
-
-        Item.__init__(self, game, position, "rocketlauncher.png", "gun_pickup.wav")
+        return "Pistol"
 
 class SniperRifleItem(Item):
 
@@ -86,12 +89,20 @@ class SniperRifleItem(Item):
 
         Item.__init__(self, game, position, "sniper.png", "gun_pickup.wav")
 
+    def __str__(self):
+
+        return "Sniper Rifle"
+
 
 class AssaultRifleItem(Item):
 
     def __init__(self, game, position):
 
         Item.__init__(self, game, position, "machinegun.png", "gun_pickup.wav")
+
+    def __str__(self):
+
+        return "Assault Rifle"
 
 class QBitItem(Item):
 

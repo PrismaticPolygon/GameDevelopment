@@ -1,12 +1,15 @@
 import sys
 import pygame as pg
-from settings import *
 import settings
+from settings import *
 from tilemap import Camera, TiledMap
 from sprites import *
 from hud import draw_player_health, draw_text
 from menu import create_menu
 
+WIDTH = settings.WIDTH
+HEIGHT = settings.HEIGHT
+TITLE = settings.TITLE
 
 class Game:
 
@@ -119,11 +122,7 @@ class Game:
 
     def run(self):
 
-        global MUSIC_ON
-
-        print("Is music on?", MUSIC_ON)
-
-        if MUSIC_ON:
+        if settings.MUSIC_ENABLED:
 
             pg.mixer.music.play(loops=-1) # Play background music on a loop
 
@@ -295,9 +294,11 @@ class Game:
         draw_player_health(self.screen, 10, 10, self.player.health / 100)
         draw_text(self.screen, 'Zombies: {}'.format(len(self.mobs)), "hud", 30, WHITE, WIDTH - 10, 10, align="ne")
 
-        if self.player.can_equip_weapon():
+        weapon = self.player.can_equip_weapon()
 
-            draw_text(self.screen, "Press E to equip", "hud", 30, WHITE, WIDTH / 2, HEIGHT * 4 / 5, align="center")
+        if weapon is not None:
+
+            draw_text(self.screen, "Press E to equip {}".format(weapon), "hud", 30, WHITE, WIDTH / 2, HEIGHT * 4 / 5, align="center")
 
         if self.player.needs_to_reload():
 

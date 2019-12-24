@@ -143,7 +143,11 @@ class Player(pg.sprite.Sprite):
 
         items = pg.sprite.spritecollide(self, self.game.items, False)
 
-        return len(items) > 0
+        if len(items) > 0:
+
+            return str(items[0])
+
+        return None
 
     def equip_weapon(self):
 

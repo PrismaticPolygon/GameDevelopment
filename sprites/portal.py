@@ -1,5 +1,6 @@
 import pygame as pg
-from settings import PLAYER_LAYER, MAX_MOBS, DIFFICULTY
+from settings import PLAYER_LAYER, MAX_MOBS
+import settings
 from sprites import Zombie
 import random
 import math
@@ -10,6 +11,8 @@ vec = pg.math.Vector2
 class Portal(pg.sprite.Sprite):
 
     def __init__(self, game, x, y):
+
+        DIFFICULTY = settings.DIFFICULTY
 
         # Game variables
 
@@ -24,7 +27,7 @@ class Portal(pg.sprite.Sprite):
         self.position = vec(x, y)
         self.rotation = 0
         self.HIT_RECT = pg.Rect(0, 0, 128, 128)
-        self.SPAWN_RATE = 5000 / DIFFICULTY
+        self.SPAWN_RATE = 5000 / (DIFFICULTY * 2)
         self.RADIUS = 128
         self.SIZE = 128
 

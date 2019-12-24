@@ -152,12 +152,12 @@ class Shotgun(Firearm):
         Firearm.__init__(self, game, x, y, rotation, 5, WeaponMode.SEMI_AUTOMATIC, 400, 20, 400, 5, 150,
                          1000, 12, "shotgun.png", "shotgun.wav", "bullet.png")
 
-class RocketLauncher(Firearm):
+class SniperRifle(Firearm):
 
     def __init__(self, game, x, y, rotation):
 
-        Firearm.__init__(self, game, x, y, rotation, 1, WeaponMode.SEMI_AUTOMATIC, 300, 1, 1000, 0, 400,
-                         2000, 1, "rocketlauncher.png", "shotgun.wav", "ammo_rocket.png")
+        Firearm.__init__(self, game, x, y, rotation, 4, WeaponMode.SEMI_AUTOMATIC, 1000, 0, 800, 50, 800,
+                         1500, 1, "sniper.png", "shotgun.wav", "ammo_sniper.png")
 
 class AssaultRifle(Firearm):
 

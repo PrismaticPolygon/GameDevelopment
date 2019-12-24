@@ -84,5 +84,3 @@ def aspect_scale(img, bx, by):
             sy = by
 
     return pg.transform.scale(img, (int(sx), int(sy)))
-
-    # Why is that old iamge left?
