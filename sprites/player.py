@@ -1,5 +1,5 @@
 from sprites.weapons import *
-from sprites.items import ShotgunItem, PistolItem
+from sprites.items import *
 from itertools import chain
 from random import random, choice
 import math
@@ -127,6 +127,14 @@ class Player(pg.sprite.Sprite):
 
             PistolItem(self.game, vec(self.position))
 
+        if isinstance(self.weapon, SniperRifle):
+
+            SniperRifleItem(self.game, vec(self.position))
+
+        if isinstance(self.weapon, AssaultRifle):
+
+            AssaultRifleItem(self.game, vec(self.position))
+
     def is_reloading(self):
 
         return self.weapon.is_reloading()
@@ -138,9 +146,6 @@ class Player(pg.sprite.Sprite):
         return len(items) > 0
 
     def equip_weapon(self):
-
-        # So we're left with a stray sprite.
-        # Good. But we're not deleting the images of the previous things.
 
         items = pg.sprite.spritecollide(self, self.game.items, False)
 
@@ -155,6 +160,14 @@ class Player(pg.sprite.Sprite):
             if isinstance(item, PistolItem):
 
                 self.weapon = Pistol(self.game, self.position.x, self.position.y, self.rotation)
+
+            if isinstance(item, SniperRifleItem):
+
+                self.weapon = SniperRifle(self.game, self.position.x, self.position.y, self.rotation)
+
+            if isinstance(item, AssaultRifleItem):
+
+                self.weapon = AssaultRifle(self.game, self.position.x, self.position.y, self.rotation)
 
             item.pickup()
 

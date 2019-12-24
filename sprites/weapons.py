@@ -166,10 +166,3 @@ class AssaultRifle(Firearm):
         Firearm.__init__(self, game, x, y, rotation, 30, WeaponMode.AUTOMATIC, 600, 10, 300, 12, 100,
                          1500, 1, "machinegun.png", "shotgun.wav", "ammo_machinegun.png")
 
-
-class SniperRifle(Firearm):
-
-    def __init__(self, game, x, y, rotation):
-
-        Firearm.__init__(self, game, x, y, rotation, 4, WeaponMode.AUTOMATIC, 1000, 0, 700, 20, 500,
-                         1500, 1, "sniper.png", "shotgun.wav", "ammo_sniper.png")

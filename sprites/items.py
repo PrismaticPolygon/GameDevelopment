@@ -74,6 +74,25 @@ class PistolItem(Item):
 
         Item.__init__(self, game, position, "pistol.png", "gun_pickup.wav")
 
+class RocketLauncherItem(Item):
+
+    def __init__(self, game, position):
+
+        Item.__init__(self, game, position, "rocketlauncher.png", "gun_pickup.wav")
+
+class SniperRifleItem(Item):
+
+    def __init__(self, game, position):
+
+        Item.__init__(self, game, position, "sniper.png", "gun_pickup.wav")
+
+
+class AssaultRifleItem(Item):
+
+    def __init__(self, game, position):
+
+        Item.__init__(self, game, position, "machinegun.png", "gun_pickup.wav")
+
 class QBitItem(Item):
 
     def __init__(self, game, position):

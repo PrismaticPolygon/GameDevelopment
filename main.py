@@ -14,6 +14,8 @@ def menu_background():
 
 # DIFFICULTY = 1
 
+MUSIC_ON = False
+
 def change_difficulty(value):
 
     difficulty, _ = value
@@ -30,6 +32,19 @@ def change_difficulty(value):
 
         DIFFICULTY = 1.25
 
+def change_music(value):
+
+    global MUSIC_ON
+
+    value = value[0]
+
+    if value == "On":
+
+        MUSIC_ON = True
+
+    if value == "Off":
+
+        MUSIC_ON = False
 
 def create_menu(surface):
 
@@ -40,7 +55,6 @@ def create_menu(surface):
                                menu_alpha=85,
                                menu_color=LIGHTGREY,  # Background color
                                menu_width=600,
-                               # onclose=pygameMenu.events.BACK,  # If this menu closes (ESC) back to main
                                option_shadow=True,
                                rect_width=4,
                                title='Settings',
@@ -52,6 +66,12 @@ def create_menu(surface):
                           default=1,
                           onchange=change_difficulty,
                           onreturn=change_difficulty)
+
+    settings.add_selector('Music',
+                          [("On",), ("Off",)],
+                          default=1,
+                          onchange=change_music,
+                          onreturn=change_music)
 
     controls = pygameMenu.TextMenu(surface,
                                     dopause=True,
@@ -86,7 +106,7 @@ def create_menu(surface):
                            menu_alpha=85,
                            fps=FPS,
                            onclose=pygameMenu.events.CLOSE,
-                           title='Zombitch!',
+                           title='ffgt86',
                            title_offsety=5,
                            window_height=HEIGHT,
                            window_width=WIDTH)
@@ -211,7 +231,13 @@ class Game:
 
     def run(self):
 
-        # pg.mixer.music.play(loops=-1) # Play background music on a loop
+        global MUSIC_ON
+
+        print("Is music on?", MUSIC_ON)
+
+        if MUSIC_ON:
+
+            pg.mixer.music.play(loops=-1) # Play background music on a loop
 
         while self.playing:
 
@@ -330,13 +356,17 @@ class Game:
 
         # Bullets hit mobs
 
-        hits = pg.sprite.groupcollide(self.mobs, self.bullets, False, True)
+        hits = pg.sprite.groupcollide(self.mobs, self.bullets, False, False)
 
         for mob in hits:
 
             for bullet in hits[mob]:
 
                 mob.health -= bullet.DAMAGE
+
+                if not isinstance(self.player.weapon, SniperRifle):
+
+                    bullet.kill()
 
             mob.vel = vec(0, 0)
 
