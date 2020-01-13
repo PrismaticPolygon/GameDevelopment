@@ -1,13 +1,11 @@
 import pygame as pg
 from random import random, choice, randint
 from sprites.player import collide_with_walls
-from settings import GREEN, RED, YELLOW, SOUND_PATH, MOB_LAYER
+from settings import GREEN, RED, YELLOW, SOUND_PATH, MOB_LAYER, TILESIZE
 import settings
 from os import path
 
 vec = pg.math.Vector2
-
-# Weird.
 
 class Zombie(pg.sprite.Sprite):
 
@@ -31,7 +29,7 @@ class Zombie(pg.sprite.Sprite):
         self.DAMAGE = 10 * DIFFICULTY
         self.KNOCKBACK = 20 * DIFFICULTY
         self.AVOID_RADIUS = 50
-        self.DETECT_RADIUS = 400 * DIFFICULTY
+        self.DETECT_RADIUS = 500 * DIFFICULTY
 
         self.SOUNDS = [pg.mixer.Sound(path.join(SOUND_PATH, file)) for file in [
             "brains_1.wav",
@@ -145,6 +143,32 @@ class Zombie(pg.sprite.Sprite):
 
             self.velocity += self.acceleration * self.game.dt
             self.position += self.velocity * self.game.dt + 0.5 * self.acceleration * self.game.dt ** 2
+
+            self.hit_rect.centerx = self.position.x
+
+            collide_with_walls(self, self.game.walls, 'sprites')
+
+            self.hit_rect.centery = self.position.y
+
+            collide_with_walls(self, self.game.walls, 'y')
+
+            self.rect.center = self.hit_rect.center
+
+        else:   ## Wander
+
+            self.velocity = vec(self.speed * 0.3, 0).rotate(-self.rotation)
+
+            if random() < 0.02:   # 5% chance to change rotation
+
+                self.rotation += randint(0, 20) - 10    # Change by +- degrees
+                self.image = pg.transform.rotate(self.original_image, self.rotation)
+
+            self.rect = self.image.get_rect()
+            self.rect.center = self.position
+
+            self.avoid_mobs()
+
+            self.position += self.velocity * self.game.dt
 
             self.hit_rect.centerx = self.position.x
 

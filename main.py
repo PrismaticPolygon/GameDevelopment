@@ -11,6 +11,9 @@ WIDTH = settings.WIDTH
 HEIGHT = settings.HEIGHT
 TITLE = settings.TITLE
 
+# Not sure that I can be arsed, to be honest. Hold up. I WILL submit this this evening. Which means I can dedicate all
+# of today doing it.
+
 class Game:
 
     def __init__(self):
