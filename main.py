@@ -51,7 +51,7 @@ class Game:
     def load_data(self):
 
         self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
-        self.dim_screen.fill((0, 0, 0, 180))
+        self.dim_screen.fill((0, 0, 0, 140))
 
         self.map = TiledMap("level1")
         self.map_img = self.map.make_map()
@@ -68,6 +68,8 @@ class Game:
 
     def new(self):
 
+        global DIFFICULTY
+
         self.all_sprites = pg.sprite.LayeredUpdates()
 
         self.walls = pg.sprite.Group()
@@ -77,7 +79,7 @@ class Game:
 
         self.weapons = pg.sprite.Group()
 
-        self.map = TiledMap("level1")
+        self.map = TiledMap("science_site")
         self.map_img = self.map.make_map()
         self.map_rect = self.map_img.get_rect()
 
@@ -109,11 +111,24 @@ class Game:
 
                 ShotgunItem(self, center)
 
+            if tile_object.name == "pistol":
+
+                PistolItem(self, center)
+
+            if tile_object.name == "sniper":
+
+                PistolItem(self, center)
+
+            if tile_object.name == "rifle":
+
+                AssaultRifleItem(self, center)
+
             if tile_object.name == "qbit":
 
                 QBitItem(self, center)
 
                 self.NUMBER_OF_QBITS += 1
+                DIFFICULTY += 0.1
 
             if tile_object.name == "portal":
 
@@ -209,6 +224,7 @@ class Game:
         if self.portal is not None:
 
             if collide_hit_rect(self.player, self.portal) and self.player.qbit_count == self.NUMBER_OF_QBITS:
+            # if collide_hit_rect(self.player, self.portal):
 
                 self.portal.kill()
 
@@ -220,9 +236,9 @@ class Game:
 
 
 
-                # self.playing = False
-                #
-                # self.victory = True
+                self.playing = False
+
+                self.victory = True
 
         # Mob hits player
 
@@ -339,7 +355,7 @@ class Game:
 
         pg.display.flip()
 
-        self.wait_for_key()
+        # self.wait_for_key()
 
     def show_go_screen(self):
 
@@ -349,7 +365,7 @@ class Game:
 
         pg.display.flip()
 
-        self.wait_for_key()
+        # self.wait_for_key()
 
     def wait_for_key(self):
 
@@ -371,14 +387,12 @@ class Game:
 
                     waiting = False
 
-# create the game object
-g = Game()
-
-g.show_start_screen()
-
 while True:
 
+    g = Game()
+
     g.new()
+    g.show_start_screen()
     g.run()
 
     if g.victory:
@@ -388,3 +402,5 @@ while True:
     else:
 
         g.show_go_screen()
+
+    g.wait_for_key()

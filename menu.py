@@ -32,6 +32,22 @@ def create_menu(surface):
 
     settings_menu.add_selector('Music', music, default=1, onchange=change_music, onreturn=change_music)
 
+    # STORY
+
+    story_menu = pygameMenu.TextMenu(surface, width, height, font, "Story", dopause=True, bgfun=bgfun,
+                                        menu_color=color)
+    controls = [
+        "A quantum computing experiment has failed.",
+        "A demonic portal has opened.",
+        "It can only be closed by casting 12 Q-bits,",
+        "scattered around the Science Site, into the rift.",
+        "Good luck!",
+    ]
+
+    for line in controls:
+
+        story_menu.add_line(line)
+
     # CONTROLS
 
     controls_menu = pygameMenu.TextMenu(surface, width, height, font, "Controls", dopause=True, bgfun=bgfun, menu_color=color)
@@ -41,6 +57,7 @@ def create_menu(surface):
         "Use SPACE to shoot",
         "Use R to reload",
         "Use E to equip weapons",
+        "Use N to toggle day/night (this is CHEATING)"
     ]
 
     for line in controls:
@@ -58,6 +75,7 @@ def create_menu(surface):
 
     menu.add_option("Play", pygameMenu.events.CLOSE)
 
+    menu.add_option(story_menu.get_title(), story_menu)
     menu.add_option(controls_menu.get_title(), controls_menu)
     menu.add_option(settings_menu.get_title(), settings_menu)
     menu.add_option('Exit', pygameMenu.events.EXIT)  # Add exit function

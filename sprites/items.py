@@ -63,6 +63,10 @@ class MedkitItem(Item):
 
         self.AMOUNT = 20
 
+    def __str__(self):
+
+        return "Medkit"
+
 class ShotgunItem(Item):
 
     def __init__(self, game, position):
