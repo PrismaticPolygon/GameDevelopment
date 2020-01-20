@@ -53,7 +53,7 @@ class Game:
         self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
         self.dim_screen.fill((0, 0, 0, 140))
 
-        self.map = TiledMap("level1")
+        self.map = TiledMap("science_site")
         self.map_img = self.map.make_map()
         self.map_rect = self.map_img.get_rect()
 
